@@ -1,4 +1,7 @@
 {
-  "name": "AplikasiPertama",
-  "displayName": "AplikasiPertama"
+  "name": "Timbino",
+  "displayName": "Timbino",
+  "plugins": [
+    "expo-font"
+  ]
 }

@@ -1,4 +1,4 @@
-package com.aplikasipertama
+package com.timbino
 
 import android.app.Application
 import com.facebook.react.PackageList
