@@ -1,9 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.timbino">
 
     <application
         android:usesCleartextTraffic="true"
         tools:targetApi="28"
-        tools:ignore="GoogleAppIndexingWarning"/>
+        tools:ignore="GoogleAppIndexingWarning">
+        
+        <!-- Meta-data untuk Google Sign-In -->
+        <meta-data
+            android:name="com.google.android.gms.client.id"
+            android:value="502185625116-509hc7cv67m2n13dbgq6q44cuqh4ct1a.apps.googleusercontent.com" />
+
+        <!-- Meta-data untuk Google Play Services -->
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+
+        <!-- Firebase App ID dan Project ID -->
+        <meta-data
+            android:name="com.google.firebase.analytics.APP_ID"
+            android:value="1:502185625116:android:bde482892eada8c2c5c1d9" />
+        
+        <meta-data
+            android:name="com.google.firebase.project_id"
+            android:value="timbino-9fdc2" />
+        
+        <meta-data
+            android:name="com.google.firebase.database.url"
+            android:value="https://timbino-9fdc2.firebaseio.com" />
+        
+    </application>
+
+    <!-- Permissions yang diperlukan -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
 </manifest>

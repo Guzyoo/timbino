@@ -24,15 +24,15 @@ const ImageSlider: React.FC<ImageSliderProps> = ({
   activeIndex,
 }) => {
   return (
-    <View>
+    <View style={styles.container}>
       <FlatList
         data={images}
         horizontal
         showsHorizontalScrollIndicator={false}
         onScroll={onScroll}
         pagingEnabled
-        snapToAlignment="start"
-        snapToInterval={width * 0.75}
+        snapToAlignment="center"
+        snapToInterval={width * 0.8} // Mengatur jarak slide
         decelerationRate="fast"
         renderItem={({item}) => <Image source={item} style={styles.image} />}
         keyExtractor={(item, index) => index.toString()}
@@ -44,10 +44,7 @@ const ImageSlider: React.FC<ImageSliderProps> = ({
         {images.map((_, index) => (
           <View
             key={index}
-            style={[
-              styles.dot,
-              index === activeIndex && styles.activeDot, // Gaya titik aktif
-            ]}
+            style={[styles.dot, index === activeIndex && styles.activeDot]}
           />
         ))}
       </View>
@@ -56,13 +53,18 @@ const ImageSlider: React.FC<ImageSliderProps> = ({
 };
 
 const styles = StyleSheet.create({
+  container: {
+    alignItems: 'center', // Memusatkan slider
+  },
   image: {
-    width: width * 0.75, // Lebar gambar dikurangi untuk memperlihatkan gambar sebelahnya
-    resizeMode: 'contain',
-    marginHorizontal: 3,
+    width: width * 0.8, // Lebar gambar yang lebih kecil untuk melihat sisi gambar berikutnya
+    height: 200, // Menyesuaikan tinggi gambar
+    resizeMode: 'cover',
+    borderRadius: 10, // Menambahkan radius untuk sudut yang melengkung
+    marginHorizontal: 5, // Jarak antar gambar
   },
   contentContainer: {
-    paddingHorizontal: 10, // Mengatur posisi awal dan akhir
+    paddingHorizontal: 10,
   },
   indicatorContainer: {
     flexDirection: 'row',
@@ -70,16 +72,16 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   dot: {
-    height: 11,
-    width: 11,
-    borderRadius: 11,
+    height: 8,
+    width: 8,
+    borderRadius: 4,
     backgroundColor: '#ccc',
-    marginHorizontal: 4,
+    marginHorizontal: 3,
   },
   activeDot: {
-    backgroundColor: '#FF8261', // Warna titik untuk gambar yang sedang dilihat
-    width: 11,
-    height: 11,
+    backgroundColor: '#FF8261', // Sesuaikan dengan warna utama aplikasi
+    width: 10,
+    height: 10,
   },
 });
 

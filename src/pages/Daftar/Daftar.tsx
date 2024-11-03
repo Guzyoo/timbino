@@ -8,6 +8,9 @@ import {
   TextInput,
   ScrollView,
 } from 'react-native';
+import DateTimePicker, {
+  DateTimePickerEvent,
+} from '@react-native-community/datetimepicker';
 import Timbino from '../../assets/images/timbino.png';
 import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
@@ -18,10 +21,25 @@ type DaftarScreenNavigationProp = StackNavigationProp<RootParamList, 'Daftar'>;
 
 const Daftar = () => {
   const navigation = useNavigation<DaftarScreenNavigationProp>();
-  const [name, setName] = useState('');
+  const [babyName, setBabyName] = useState('');
+  const [age, setAge] = useState('');
+  const [motherName, setMotherName] = useState('');
+  const [address, setAddress] = useState('');
   const [selectedGender, setSelectedGender] = useState<
     'Laki-laki' | 'Perempuan' | null
   >(null);
+  const [date, setDate] = useState<Date | undefined>(undefined);
+  const [showPicker, setShowPicker] = useState(false);
+
+  const onDateChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
+    const currentDate = selectedDate || date;
+    setDate(currentDate);
+    setShowPicker(false);
+  };
+
+  const openDatePicker = () => {
+    setShowPicker(true);
+  };
 
   return (
     <ScrollView
@@ -31,8 +49,8 @@ const Daftar = () => {
         <Image source={Timbino} style={styles.image} />
         <Text style={styles.inputBayi}>Nama Bayi</Text>
         <TextInput
-          value={name}
-          onChangeText={setName}
+          value={babyName}
+          onChangeText={setBabyName}
           placeholder="Masukkan Nama Bayi"
           style={styles.input}
         />
@@ -70,32 +88,43 @@ const Daftar = () => {
 
         <Text style={styles.inputBayi}>Usia</Text>
         <TextInput
-          value={name}
-          onChangeText={setName}
-          placeholder="Masukkan Alamat Rumah"
+          value={age}
+          onChangeText={setAge}
+          placeholder="Masukkan Usia Bayi"
           style={styles.input}
         />
         <Text style={styles.inputBayi}>Tanggal Lahir</Text>
         <View style={styles.buttonContent}>
-          <TextInput
-            value={name}
-            onChangeText={setName}
-            placeholder="Masukkan Tanggal Lahir"
-            style={styles.inputLahir}
-          />
+          <TouchableOpacity onPress={openDatePicker}>
+            <TextInput
+              value={date ? date.toLocaleDateString() : ''}
+              placeholder="Masukkan Tanggal Lahir"
+              editable={false} // Agar user tidak bisa mengetik manual
+              style={styles.inputLahir}
+            />
+          </TouchableOpacity>
           <Image source={calendar} style={styles.calendar} />
+
+          {showPicker && (
+            <DateTimePicker
+              value={date || new Date()} // Default ke tanggal hari ini
+              mode="date"
+              display="default"
+              onChange={onDateChange}
+            />
+          )}
         </View>
         <Text style={styles.inputBayi}>Nama Ibu Kandung</Text>
         <TextInput
-          value={name}
-          onChangeText={setName}
+          value={motherName}
+          onChangeText={setMotherName}
           placeholder="Masukkan Nama Ibu Kandung"
           style={styles.input}
         />
         <Text style={styles.inputBayi}>Alamat</Text>
         <TextInput
-          value={name}
-          onChangeText={setName}
+          value={address}
+          onChangeText={setAddress}
           placeholder="Masukkan Alamat Rumah"
           style={styles.input}
         />
@@ -210,10 +239,16 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: '#2F4666', // Ubah warna sesuai keinginan
-    paddingVertical: 15,
-    paddingHorizontal: 150,
-    borderRadius: 20, // Membuat sudut tombol melengkung
+    height: 50,
+    width: 357,
+    borderRadius: 20,
     marginTop: 20,
+    justifyContent: 'center',
+    shadowColor: '#000000',
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 4,
   },
   buttonText: {
     color: '#FFFFFF', // Warna teks pada tombol

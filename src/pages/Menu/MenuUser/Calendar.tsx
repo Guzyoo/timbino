@@ -72,7 +72,6 @@ const styles = StyleSheet.create({
     marginTop: 20,
     flexDirection: 'row',
     width: 350,
-    elevation: 2,
     height: 76,
     borderRadius: 20,
     shadowOpacity: 0.25,

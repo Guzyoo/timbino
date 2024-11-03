@@ -30,7 +30,8 @@ const PanduanBayi = () => {
         </TouchableOpacity>
         <Text style={styles.panduan}>Panduan Tumbuh Kembang {'\n'}Bayi</Text>
       </View>
-      <Image source={Tumbuh} style={styles.tumbuh} />
+      <View></View>
+      <View></View>
     </ScrollView>
   );
 };

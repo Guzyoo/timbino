@@ -4,7 +4,10 @@ export type RootParamList = {
   Daftar: undefined;
   Admin: undefined;
   Menu: undefined;
+  PanduanBayi: undefined;
+  Calendar: undefined;
   DashboardUser: undefined;
+  DashboardAdminScreen: undefined;
   ProfileUser: undefined;
   BeratBadan: undefined;
   TinggiBadan: undefined;

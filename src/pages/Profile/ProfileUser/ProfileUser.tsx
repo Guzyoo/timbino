@@ -123,6 +123,11 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     marginBottom: 20,
     padding: 20,
+    shadowColor: '#000000',
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
   },
   profileBayi: {
     flexDirection: 'row',
@@ -157,6 +162,11 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     marginBottom: 20,
     padding: 20,
+    shadowColor: '#000000',
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
   },
   avatar: {
     width: 52,

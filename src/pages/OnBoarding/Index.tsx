@@ -1,5 +1,12 @@
-import React from 'react';
-import {View, Text, Image, TouchableOpacity, StyleSheet} from 'react-native';
+import React, {useEffect, useRef} from 'react';
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+  Animated,
+} from 'react-native';
 import Timbino from '../../assets/images/timbino.png';
 import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
@@ -12,8 +19,19 @@ type OnBoardingScreenNavigationProp = StackNavigationProp<
 
 const OnBoarding = () => {
   const navigation = useNavigation<OnBoardingScreenNavigationProp>();
+  const fadeAnim = useRef(new Animated.Value(0)).current; // Initial opacity value: 0
+
+  useEffect(() => {
+    // Animasi fade in
+    Animated.timing(fadeAnim, {
+      toValue: 1, // opacity ke 1
+      duration: 1000, // durasi animasi dalam milidetik
+      useNativeDriver: true,
+    }).start();
+  }, [fadeAnim]);
+
   return (
-    <View style={styles.container1}>
+    <Animated.View style={[styles.container1, {opacity: fadeAnim}]}>
       <Text style={styles.h1}>TIMBINO</Text>
       <Text style={styles.text}>
         Timbangan IoT untuk Monitoring Bayi dan Integrasi Nutrisi Optimal
@@ -29,7 +47,7 @@ const OnBoarding = () => {
         onPress={() => navigation.navigate('Login')}>
         <Text style={styles.buttonText}>Mulai</Text>
       </TouchableOpacity>
-    </View>
+    </Animated.View>
   );
 };
 
@@ -77,11 +95,18 @@ const styles = StyleSheet.create({
     marginBottom: 57,
   },
   button: {
-    backgroundColor: '#2F4666', // Ubah warna sesuai keinginan
-    paddingVertical: 15,
-    paddingHorizontal: 150,
-    borderRadius: 20, // Membuat sudut tombol melengkung
+    backgroundColor: '#2F4666',
+    height: 46,
+    width: 325,
+    borderRadius: 20,
     marginTop: 20,
+    shadowColor: '#000000',
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   buttonText: {
     color: '#FFFFFF', // Warna teks pada tombol

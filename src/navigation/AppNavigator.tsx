@@ -4,7 +4,6 @@ import {createStackNavigator} from '@react-navigation/stack';
 import SplashScreen from '../pages/SplashScreen/SplashScreen';
 import OnBoarding from '../pages/OnBoarding/Index';
 import Login from '../pages/Login/Login';
-import Daftar from '../pages/Daftar/Daftar';
 import Admin from '../pages/Admin/Admin';
 import BeratBadan from '../pages/Menu/MenuUser/BeratBadan';
 import TinggiBadan from '../pages/Menu/MenuUser/TinggiBadan';
@@ -13,8 +12,9 @@ import ProfileUser from '../pages/Profile/ProfileUser/ProfileUser';
 import DashboardTabs from '../pages/Home/DashboardUser';
 import Calendar from '../pages/Menu/MenuUser/Calendar';
 import PanduanBayi from '../pages/Menu/MenuUser/PanduanBayi';
-import DashboardAdmin from '../pages/Home/DashboardAdmin';
 import DashboardAdminScreen from '../pages/Home/DashboardAdmin';
+import Daftar from '../pages/Daftar/Daftar';
+import Menu from '../pages/Menu/Menu';
 
 const Stack = createStackNavigator();
 
@@ -39,6 +39,7 @@ const AppNavigator = () => {
       <Stack.Screen name="BeratBadan" component={BeratBadan} />
       <Stack.Screen name="TinggiBadan" component={TinggiBadan} />
       <Stack.Screen name="HubungiScreen" component={HubungiScreen} />
+      {/* <Stack.Screen name="Menu" component={Menu} /> */}
     </Stack.Navigator>
   );
 };

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {View, Text, Image, TouchableOpacity, StyleSheet} from 'react-native';
 import Timbino from '../../assets/images/timbino.png';
 import Google from '../../assets/images/google.png';
@@ -6,11 +6,45 @@ import Person from '../../assets/images/person.png';
 import {RootParamList} from '../../navigation/RootParamList';
 import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
+import {GoogleSignin} from '@react-native-google-signin/google-signin';
+import auth from '@react-native-firebase/auth';
+import {Button} from 'react-native';
 
 type LoginScreenNavigationProp = StackNavigationProp<RootParamList, 'Login'>;
 
 const Login = () => {
   const navigation = useNavigation<LoginScreenNavigationProp>();
+
+  const handleGoogleLogin = async () => {
+    try {
+      // Pastikan Play Services tersedia
+      await GoogleSignin.hasPlayServices({showPlayServicesUpdateDialog: true});
+
+      // Mendapatkan data login pengguna
+      const userInfo = await GoogleSignin.signIn();
+
+      // Mendapatkan tokens dari userInfo
+      const tokens = await GoogleSignin.getTokens();
+
+      // Mendapatkan idToken dari tokens
+      const idToken = tokens.idToken;
+
+      if (!idToken) {
+        throw new Error('ID token tidak ditemukan');
+      }
+
+      // Membuat kredensial Google dengan idToken
+      const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+
+      // Login dengan Firebase menggunakan kredensial Google
+      await auth().signInWithCredential(googleCredential);
+
+      console.log('Login berhasil!');
+    } catch (error) {
+      console.error('Google Sign In Error:', error);
+    }
+  };
+
   return (
     <View style={styles.container1}>
       <View style={styles.container2}>
@@ -28,14 +62,18 @@ const Login = () => {
         Untuk membantu orang tua memantau tumbuh kembang dan informasi kesehatan
         bayi melalaui aplikasi.
       </Text>
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => navigation.navigate('Daftar')}>
+      <Button
+        title="Google Sign-In"
+        onPress={() =>
+          handleGoogleLogin().then(() => console.log('Signed in with Google!'))
+        }
+      />
+      {/* <TouchableOpacity style={styles.button} onPress={handleGoogleLogin}>
         <View style={styles.buttonContent}>
           <Image source={Google} style={styles.googleLogo} />
           <Text style={styles.buttonText}>Masuk dengan Google</Text>
         </View>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
     </View>
   );
 };
@@ -102,23 +140,30 @@ const styles = StyleSheet.create({
     marginBottom: 57,
   },
   button: {
-    backgroundColor: '#D7E7F1', // Ubah warna sesuai keinginan
-    paddingVertical: 15,
-    paddingHorizontal: 80,
-    borderRadius: 20, // Membuat sudut tombol melengkung
+    backgroundColor: '#D7E7F1',
+    height: 46,
+    width: 325,
+    borderRadius: 20,
     marginTop: 20,
+    justifyContent: 'center',
+    shadowColor: '#000000',
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 4,
   },
   buttonContent: {
-    flexDirection: 'row', // Atur agar logo dan teks berada di satu baris
-    alignItems: 'center', // Vertikal tengah
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   googleLogo: {
-    width: 20, // Sesuaikan ukuran logo
+    width: 20,
     height: 20,
-    marginRight: 10, // Jarak antara logo dan teks
+    marginRight: 10,
   },
   buttonText: {
-    color: '#2F4666', // Warna teks pada tombol
+    color: '#2F4666',
     fontSize: 16,
     fontFamily: 'Livvic-Black',
     textAlign: 'center',
@@ -127,3 +172,8 @@ const styles = StyleSheet.create({
 });
 
 export default Login;
+function setState(arg0: {
+  userInfo: import('@react-native-google-signin/google-signin').User | null;
+}) {
+  throw new Error('Function not implemented.');
+}

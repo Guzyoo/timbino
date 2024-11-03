@@ -3,7 +3,7 @@
     "project_number": "502185625116",
     "firebase_url": "https://timbino-9fdc2-default-rtdb.firebaseio.com",
     "project_id": "timbino-9fdc2",
-    "storage_bucket": "timbino-9fdc2.appspot.com"
+    "storage_bucket": "timbino-9fdc2.firebasestorage.app"
   },
   "client": [
     {
@@ -13,7 +13,12 @@
           "package_name": "com.timbino"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "502185625116-2g9iuh2dt3u9b7be1di6kbv2pshvgpuh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBEl_eYy35NuzxK8C6yl9AHQBXqXTvB8mk"
@@ -21,7 +26,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "502185625116-2g9iuh2dt3u9b7be1di6kbv2pshvgpuh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

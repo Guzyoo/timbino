@@ -12,7 +12,7 @@ import {Picker} from '@react-native-picker/picker';
 import database from '@react-native-firebase/database'; // Realtime Database
 import firestore from '@react-native-firebase/firestore';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import {DateTimePickerEvent} from '@react-native-community/datetimepicker'; // Import types
+import {DateTimePickerEvent} from '@react-native-community/datetimepicker';
 
 const Menu = () => {
   const [sensorData, setSensorData] = useState(null);
