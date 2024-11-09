@@ -8,6 +8,7 @@ apply plugin: "com.facebook.react"
  * By default you don't need to apply any configuration, just uncomment the lines you need.
  */
 react {
+    def enableProguardInReleaseBuilds = false
     /* Folders */
     //   The root of your project, i.e. where "package.json" lives. Default is '../..'
     // root = file("../../")
@@ -94,6 +95,7 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+          
     }
     buildTypes {
         debug {
@@ -116,6 +118,8 @@ dependencies {
     implementation("com.google.android.gms:play-services-auth:21.2.0")
     implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
     implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-firestore")
+    implementation("com.google.firebase:firebase-storage")
     
 
     if (hermesEnabled.toBoolean()) {

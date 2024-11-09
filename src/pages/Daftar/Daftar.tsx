@@ -8,6 +8,10 @@ import {
   TextInput,
   ScrollView,
 } from 'react-native';
+import firestore from '@react-native-firebase/firestore';
+import auth from '@react-native-firebase/auth';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {Picker} from '@react-native-picker/picker';
 import DateTimePicker, {
   DateTimePickerEvent,
 } from '@react-native-community/datetimepicker';
@@ -15,17 +19,18 @@ import Timbino from '../../assets/images/timbino.png';
 import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {RootParamList} from '../../navigation/RootParamList';
+
 import calendar from '../../assets/icons/calendar.png';
 
 type DaftarScreenNavigationProp = StackNavigationProp<RootParamList, 'Daftar'>;
 
 const Daftar = () => {
   const navigation = useNavigation<DaftarScreenNavigationProp>();
-  const [babyName, setBabyName] = useState('');
-  const [age, setAge] = useState('');
-  const [motherName, setMotherName] = useState('');
-  const [address, setAddress] = useState('');
-  const [selectedGender, setSelectedGender] = useState<
+  const [namaBayi, setNamaBayi] = useState('');
+  const [usia, setUsia] = useState('');
+  const [ibuKandung, setIbuKandung] = useState('');
+  const [alamat, setAlamat] = useState('');
+  const [jenisKelamin, setJenisKelamin] = useState<
     'Laki-laki' | 'Perempuan' | null
   >(null);
   const [date, setDate] = useState<Date | undefined>(undefined);
@@ -41,6 +46,47 @@ const Daftar = () => {
     setShowPicker(true);
   };
 
+  const ageOptions = Array.from({length: 24}, (_, i) => `${i + 1}`);
+
+  const saveDataToFirestore = async () => {
+    const user = auth().currentUser;
+    if (!user) return; // pastikan user sudah login
+
+    try {
+      const userDoc = await firestore().collection('users').doc(user.uid).get();
+      if (userDoc.exists) {
+        const userData = userDoc.data();
+
+        // Data yang akan disimpan
+        const data = {
+          namaBayi,
+          usia,
+          ibuKandung,
+          alamat,
+          gender: jenisKelamin,
+          birthDate: date?.toISOString(),
+          uid: user.uid, // UID pengguna yang login
+        };
+
+        // Simpan ke Firestore di koleksi `data`, dokumen `riwayat`
+        await firestore()
+          .collection('data')
+          .doc('user')
+          .set(data, {merge: true});
+
+        await AsyncStorage.setItem('isLoggedIn', 'true');
+        await AsyncStorage.setItem('uid', user.uid);
+
+        // Navigasi ke DashboardUser setelah data tersimpan
+        navigation.navigate('DashboardUser');
+      } else {
+        console.log('User document not found.');
+      }
+    } catch (error) {
+      console.error('Error saving data:', error);
+    }
+  };
+
   return (
     <ScrollView
       style={styles.scrollView}
@@ -49,8 +95,8 @@ const Daftar = () => {
         <Image source={Timbino} style={styles.image} />
         <Text style={styles.inputBayi}>Nama Bayi</Text>
         <TextInput
-          value={babyName}
-          onChangeText={setBabyName}
+          value={namaBayi}
+          onChangeText={setNamaBayi}
           placeholder="Masukkan Nama Bayi"
           style={styles.input}
         />
@@ -60,11 +106,11 @@ const Daftar = () => {
           <TouchableOpacity
             style={[
               styles.radioButton,
-              selectedGender === 'Laki-laki' && styles.radioButtonSelected,
+              jenisKelamin === 'Laki-laki' && styles.radioButtonSelected,
             ]}
-            onPress={() => setSelectedGender('Laki-laki')}>
+            onPress={() => setJenisKelamin('Laki-laki')}>
             <View style={styles.circle}>
-              {selectedGender === 'Laki-laki' && (
+              {jenisKelamin === 'Laki-laki' && (
                 <View style={styles.innerCircle} />
               )}
             </View>
@@ -74,11 +120,11 @@ const Daftar = () => {
           <TouchableOpacity
             style={[
               styles.radioButton,
-              selectedGender === 'Perempuan' && styles.radioButtonSelected,
+              jenisKelamin === 'Perempuan' && styles.radioButtonSelected,
             ]}
-            onPress={() => setSelectedGender('Perempuan')}>
+            onPress={() => setJenisKelamin('Perempuan')}>
             <View style={styles.circle}>
-              {selectedGender === 'Perempuan' && (
+              {jenisKelamin === 'Perempuan' && (
                 <View style={styles.innerCircle} />
               )}
             </View>
@@ -87,19 +133,29 @@ const Daftar = () => {
         </View>
 
         <Text style={styles.inputBayi}>Usia</Text>
-        <TextInput
-          value={age}
-          onChangeText={setAge}
-          placeholder="Masukkan Usia Bayi"
-          style={styles.input}
-        />
+        <View style={styles.pickerContainer}>
+          <Picker
+            selectedValue={usia}
+            onValueChange={(value: string) => setUsia(value)}
+            style={styles.picker}>
+            <Picker.Item label="Masukkan Usia Bayi" value="" />
+            {ageOptions.map((option, index) => (
+              <Picker.Item
+                key={index}
+                label={`${option} bulan`}
+                value={option}
+              />
+            ))}
+          </Picker>
+        </View>
+
         <Text style={styles.inputBayi}>Tanggal Lahir</Text>
         <View style={styles.buttonContent}>
           <TouchableOpacity onPress={openDatePicker}>
             <TextInput
               value={date ? date.toLocaleDateString() : ''}
               placeholder="Masukkan Tanggal Lahir"
-              editable={false} // Agar user tidak bisa mengetik manual
+              editable={false}
               style={styles.inputLahir}
             />
           </TouchableOpacity>
@@ -107,30 +163,29 @@ const Daftar = () => {
 
           {showPicker && (
             <DateTimePicker
-              value={date || new Date()} // Default ke tanggal hari ini
+              value={date || new Date()}
               mode="date"
               display="default"
               onChange={onDateChange}
             />
           )}
         </View>
+
         <Text style={styles.inputBayi}>Nama Ibu Kandung</Text>
         <TextInput
-          value={motherName}
-          onChangeText={setMotherName}
+          value={ibuKandung}
+          onChangeText={setIbuKandung}
           placeholder="Masukkan Nama Ibu Kandung"
           style={styles.input}
         />
         <Text style={styles.inputBayi}>Alamat</Text>
         <TextInput
-          value={address}
-          onChangeText={setAddress}
+          value={alamat}
+          onChangeText={setAlamat}
           placeholder="Masukkan Alamat Rumah"
           style={styles.input}
         />
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => navigation.navigate('DashboardUser')}>
+        <TouchableOpacity style={styles.button} onPress={saveDataToFirestore}>
           <Text style={styles.buttonText}>Lanjutkan</Text>
         </TouchableOpacity>
       </View>
@@ -216,7 +271,7 @@ const styles = StyleSheet.create({
     height: 45,
     textAlign: 'center',
     width: 300,
-    borderColor: '#2F4666',
+    color: '#2F4666',
     borderWidth: 2,
     fontSize: 20,
     borderRadius: 10,
@@ -238,7 +293,7 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   button: {
-    backgroundColor: '#2F4666', // Ubah warna sesuai keinginan
+    backgroundColor: '#2F4666',
     height: 50,
     width: 357,
     borderRadius: 20,
@@ -251,11 +306,25 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   buttonText: {
-    color: '#FFFFFF', // Warna teks pada tombol
+    color: '#FFFFFF',
     fontSize: 18,
     fontFamily: 'Livvic-Black',
     textAlign: 'center',
     marginBottom: 5,
+  },
+  pickerContainer: {
+    borderWidth: 2,
+    borderColor: '#2F4666',
+    borderRadius: 10,
+    backgroundColor: '#f0f0f0',
+    marginVertical: 10,
+    width: 369,
+  },
+  picker: {
+    height: 50,
+    fontSize: 20,
+    color: '#2F4666',
+    fontFamily: 'Livvic-SemiBold',
   },
 });
 

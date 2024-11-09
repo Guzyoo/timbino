@@ -1,3 +1,4 @@
+// Import Packages
 import React, {useState} from 'react';
 import {
   View,
@@ -8,7 +9,16 @@ import {
   NativeSyntheticEvent,
   NativeScrollEvent,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
+import {GoogleSignin} from '@react-native-google-signin/google-signin';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useNavigation} from '@react-navigation/native';
+import {StackNavigationProp} from '@react-navigation/stack';
+import {RootParamList} from '../../navigation/RootParamList';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+
+// Import Images dan Pages
 import Timbino from '../../assets/images/timbino.png';
 import Mid from '../../assets/images/tengah.png';
 import Right from '../../assets/images/kanan.png';
@@ -23,10 +33,6 @@ import HomeIcon from '../../assets/icons/home.png';
 import CalendarIcon from '../../assets/icons/calendar.png';
 import ProfileIcon from '../../assets/icons/profile.png';
 import ImageSlider from './ImageSlider';
-import {useNavigation} from '@react-navigation/native';
-import {StackNavigationProp} from '@react-navigation/stack';
-import {RootParamList} from '../../navigation/RootParamList';
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import ProfileUser from '../Profile/ProfileUser/ProfileUser';
 import Calendar from '../Menu/MenuUser/Calendar';
 
@@ -39,12 +45,46 @@ const {width} = Dimensions.get('screen');
 
 const DashboardUser = () => {
   const navigation = useNavigation<DashboardUserScreenNavigationProp>();
+
+  // Image Slider
   const [activeIndex, setActiveIndex] = useState(0);
   const images = [Left, Mid, Right];
 
   const onScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const slide = Math.round(event.nativeEvent.contentOffset.x / (width * 0.7));
     setActiveIndex(slide);
+  };
+
+  // Handle Logout
+  const handleLogout = () => {
+    Alert.alert(
+      'Konfirmasi Keluar',
+      'Apakah Anda yakin ingin keluar?',
+      [
+        {
+          text: 'Batal',
+          onPress: () => console.log('Logout dibatalkan'),
+          style: 'cancel',
+        },
+        {
+          text: 'Ya',
+          onPress: async () => {
+            try {
+              await GoogleSignin.signOut();
+              await AsyncStorage.clear(); // Menghapus semua data di AsyncStorage
+              console.log('Logout berhasil!');
+              navigation.reset({
+                index: 0,
+                routes: [{name: 'Login'}],
+              });
+            } catch (error) {
+              console.error('Error saat logout:', error);
+            }
+          },
+        },
+      ],
+      {cancelable: false},
+    );
   };
 
   return (
@@ -59,10 +99,12 @@ const DashboardUser = () => {
           <Text style={styles.welcomeText}>Selamat Datang</Text>
           <Text style={styles.usernameText}>IKHSAN</Text>
         </View>
-        <View style={styles.exitContainer}>
-          <Image source={Exit} style={styles.exit} />
-          <Text style={styles.exitText}> Keluar</Text>
-        </View>
+        <TouchableOpacity onPress={handleLogout}>
+          <View style={styles.exitContainer}>
+            <Image source={Exit} style={styles.exit} />
+            <Text style={styles.exitText}> Keluar</Text>
+          </View>
+        </TouchableOpacity>
       </View>
 
       <View style={{position: 'absolute', top: 180}}>

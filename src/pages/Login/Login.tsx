@@ -1,5 +1,14 @@
-import React, {useEffect} from 'react';
-import {View, Text, Image, TouchableOpacity, StyleSheet} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+  Button,
+  Alert,
+  TextInput,
+} from 'react-native';
 import Timbino from '../../assets/images/timbino.png';
 import Google from '../../assets/images/google.png';
 import Person from '../../assets/images/person.png';
@@ -8,40 +17,85 @@ import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
 import auth from '@react-native-firebase/auth';
-import {Button} from 'react-native';
+import firestore from '@react-native-firebase/firestore';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type LoginScreenNavigationProp = StackNavigationProp<RootParamList, 'Login'>;
 
 const Login = () => {
   const navigation = useNavigation<LoginScreenNavigationProp>();
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      const isLoggedIn = await AsyncStorage.getItem('isLoggedIn');
+      if (isLoggedIn === 'true') {
+        navigation.replace('DashboardUser');
+      }
+    };
+
+    checkLoginStatus();
+  }, []);
 
   const handleGoogleLogin = async () => {
     try {
-      // Pastikan Play Services tersedia
-      await GoogleSignin.hasPlayServices({showPlayServicesUpdateDialog: true});
+      const isPlayServicesAvailable = await GoogleSignin.hasPlayServices({
+        showPlayServicesUpdateDialog: true,
+      });
+      if (!isPlayServicesAvailable) {
+        throw new Error('Google Play Services tidak tersedia.');
+      }
 
-      // Mendapatkan data login pengguna
+      // Mendapatkan informasi pengguna dari Google Sign-In
       const userInfo = await GoogleSignin.signIn();
-
-      // Mendapatkan tokens dari userInfo
       const tokens = await GoogleSignin.getTokens();
-
-      // Mendapatkan idToken dari tokens
       const idToken = tokens.idToken;
 
       if (!idToken) {
         throw new Error('ID token tidak ditemukan');
       }
 
-      // Membuat kredensial Google dengan idToken
       const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+      const userCredential = await auth().signInWithCredential(
+        googleCredential,
+      );
+      const user = userCredential.user;
 
-      // Login dengan Firebase menggunakan kredensial Google
-      await auth().signInWithCredential(googleCredential);
+      // Periksa apakah pengguna sudah ada di Firestore
+      const userDoc = await firestore().collection('users').doc(user.uid).get();
+
+      if (userDoc.exists) {
+        // Jika pengguna sudah ada, arahkan ke DashboardUser
+        await AsyncStorage.setItem('isLoggedIn', 'true');
+        await AsyncStorage.setItem('uid', user.uid);
+        navigation.replace('DashboardUser');
+      } else {
+        // Jika pengguna belum ada, simpan data di Firestore dan arahkan ke Daftar
+        const userData = {
+          uid: user.uid,
+          email: user.email,
+          displayName: user.displayName,
+          photoURL: user.photoURL,
+          createdAt: new Date(),
+        };
+
+        await firestore()
+          .collection('users')
+          .doc(user.uid)
+          .set(userData, {merge: true});
+
+        await AsyncStorage.setItem('isLoggedIn', 'true');
+        await AsyncStorage.setItem('uid', user.uid);
+        navigation.navigate('Daftar');
+      }
 
       console.log('Login berhasil!');
-    } catch (error) {
-      console.error('Google Sign In Error:', error);
+    } catch (error: any) {
+      console.error('Google Sign-In Error:', error);
+      Alert.alert(
+        'Login Gagal',
+        error.message || 'Terjadi kesalahan saat login.',
+      );
     }
   };
 
@@ -60,20 +114,13 @@ const Login = () => {
       <Text style={styles.h2}>Ayo Mulai!</Text>
       <Text style={styles.textBaris}>
         Untuk membantu orang tua memantau tumbuh kembang dan informasi kesehatan
-        bayi melalaui aplikasi.
+        bayi melalui aplikasi.
       </Text>
-      <Button
-        title="Google Sign-In"
-        onPress={() =>
-          handleGoogleLogin().then(() => console.log('Signed in with Google!'))
-        }
-      />
-      {/* <TouchableOpacity style={styles.button} onPress={handleGoogleLogin}>
-        <View style={styles.buttonContent}>
-          <Image source={Google} style={styles.googleLogo} />
-          <Text style={styles.buttonText}>Masuk dengan Google</Text>
-        </View>
-      </TouchableOpacity> */}
+      <TouchableOpacity style={styles.button} onPress={handleGoogleLogin}>
+        <Image source={Google} style={styles.google} />
+        <Text style={styles.buttonText}>Masuk dengan Google</Text>
+      </TouchableOpacity>
+      {errorMessage && <Text style={styles.errorText}>{errorMessage}</Text>}
     </View>
   );
 };
@@ -139,41 +186,49 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
     marginBottom: 57,
   },
+  input: {
+    width: 300,
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    marginTop: 10,
+  },
   button: {
     backgroundColor: '#D7E7F1',
+    flexDirection: 'row',
     height: 46,
     width: 325,
     borderRadius: 20,
     marginTop: 20,
-    justifyContent: 'center',
     shadowColor: '#000000',
     shadowOffset: {width: 0, height: 4},
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 4,
-  },
-  buttonContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'center',
+    alignItems: 'center',
   },
-  googleLogo: {
-    width: 20,
-    height: 20,
-    marginRight: 10,
+  google: {
+    height: 16.84,
+    width: 16.84,
   },
   buttonText: {
     color: '#2F4666',
     fontSize: 16,
-    fontFamily: 'Livvic-Black',
+    marginHorizontal: 10,
+
+    fontFamily: 'Livvic-Bold',
     textAlign: 'center',
-    marginBottom: 5,
+    textAlignVertical: 'center',
+    marginBottom: 3,
+  },
+  errorText: {
+    color: 'red',
+    marginTop: 10,
+    textAlign: 'center',
   },
 });
 
 export default Login;
-function setState(arg0: {
-  userInfo: import('@react-native-google-signin/google-signin').User | null;
-}) {
-  throw new Error('Function not implemented.');
-}

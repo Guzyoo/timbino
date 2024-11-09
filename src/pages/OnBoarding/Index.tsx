@@ -11,6 +11,7 @@ import Timbino from '../../assets/images/timbino.png';
 import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {RootParamList} from '../../navigation/RootParamList';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type OnBoardingScreenNavigationProp = StackNavigationProp<
   RootParamList,
@@ -30,6 +31,16 @@ const OnBoarding = () => {
     }).start();
   }, [fadeAnim]);
 
+  // Fungsi untuk menyimpan status OnBoarding di AsyncStorage dan navigasi ke Login
+  const completeOnboarding = async () => {
+    try {
+      await AsyncStorage.setItem('hasSeenOnboarding', 'true');
+      navigation.replace('Login'); // Ganti layar ke Login
+    } catch (error) {
+      console.log('Error saving onboarding status:', error);
+    }
+  };
+
   return (
     <Animated.View style={[styles.container1, {opacity: fadeAnim}]}>
       <Text style={styles.h1}>TIMBINO</Text>
@@ -42,9 +53,7 @@ const OnBoarding = () => {
         Untuk membantu orang tua memantau tumbuh kembang dan informasi kesehatan
         bayi melalaui aplikasi.
       </Text>
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => navigation.navigate('Login')}>
+      <TouchableOpacity style={styles.button} onPress={completeOnboarding}>
         <Text style={styles.buttonText}>Mulai</Text>
       </TouchableOpacity>
     </Animated.View>

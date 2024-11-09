@@ -8,12 +8,57 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:502185625116:android:0cbf95dacc183d61c5c1d9",
+        "android_client_info": {
+          "package_name": "com.google"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "502185625116-nq6ghv282poe691rk2mu2c55in1q46ka.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.google",
+            "certificate_hash": "65750dc4f2e8081f25b3370585d64556e5ca9ee1"
+          }
+        },
+        {
+          "client_id": "502185625116-2g9iuh2dt3u9b7be1di6kbv2pshvgpuh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBEl_eYy35NuzxK8C6yl9AHQBXqXTvB8mk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "502185625116-2g9iuh2dt3u9b7be1di6kbv2pshvgpuh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:502185625116:android:bde482892eada8c2c5c1d9",
         "android_client_info": {
           "package_name": "com.timbino"
         }
       },
       "oauth_client": [
+        {
+          "client_id": "502185625116-017ga63m350b48os26gojq0d79jt6kqg.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.timbino",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
         {
           "client_id": "502185625116-2g9iuh2dt3u9b7be1di6kbv2pshvgpuh.apps.googleusercontent.com",
           "client_type": 3

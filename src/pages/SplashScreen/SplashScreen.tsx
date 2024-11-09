@@ -1,5 +1,6 @@
 import React, {useEffect, useRef} from 'react';
 import {View, StyleSheet, Animated} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Timbino from '../../assets/images/timbino.png';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {useNavigation} from '@react-navigation/native';
@@ -16,14 +17,25 @@ const SplashScreen = () => {
   const navigation = useNavigation<SplashScreenNavigationProp>(); // Hook untuk navigasi dengan tipe
 
   useEffect(() => {
-    // Memulai animasi ketika komponen dimount
-    Animated.timing(scaleAnim, {
-      toValue: 1,
-      duration: 2000, // Durasi animasi 2 detik
-      useNativeDriver: true, // Memanfaatkan native driver untuk performa lebih baik
-    }).start(() => {
-      navigation.navigate('OnBoarding');
-    });
+    // Fungsi untuk memeriksa status login
+    const checkLoginStatus = async () => {
+      const isLoggedIn = await AsyncStorage.getItem('isLoggedIn');
+      if (isLoggedIn === 'true') {
+        navigation.navigate('DashboardUser');
+      } else {
+        // Mulai animasi setelah cek login, baru navigasi ke OnBoarding setelah animasi selesai
+        Animated.timing(scaleAnim, {
+          toValue: 1,
+          duration: 2000, // Durasi animasi 2 detik
+          useNativeDriver: true, // Memanfaatkan native driver untuk performa lebih baik
+        }).start(() => {
+          navigation.replace('OnBoarding');
+        });
+      }
+    };
+
+    // Panggil fungsi untuk memeriksa status login
+    checkLoginStatus();
   }, [scaleAnim, navigation]);
 
   return (

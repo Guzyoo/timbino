@@ -3,6 +3,7 @@ export type RootParamList = {
   Login: undefined;
   Daftar: undefined;
   Admin: undefined;
+  Home: undefined;
   Menu: undefined;
   PanduanBayi: undefined;
   Calendar: undefined;

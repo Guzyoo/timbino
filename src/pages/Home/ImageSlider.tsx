@@ -31,7 +31,7 @@ const ImageSlider: React.FC<ImageSliderProps> = ({
         showsHorizontalScrollIndicator={false}
         onScroll={onScroll}
         pagingEnabled
-        snapToAlignment="center"
+        snapToAlignment="start"
         snapToInterval={width * 0.8} // Mengatur jarak slide
         decelerationRate="fast"
         renderItem={({item}) => <Image source={item} style={styles.image} />}
@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
   },
   image: {
     width: width * 0.8, // Lebar gambar yang lebih kecil untuk melihat sisi gambar berikutnya
-    height: 200, // Menyesuaikan tinggi gambar
+    height: 159, // Menyesuaikan tinggi gambar
     resizeMode: 'cover',
     borderRadius: 10, // Menambahkan radius untuk sudut yang melengkung
     marginHorizontal: 5, // Jarak antar gambar
