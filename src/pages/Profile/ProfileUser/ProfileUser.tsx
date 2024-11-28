@@ -38,6 +38,8 @@ const ProfileUser = () => {
   const navigation = useNavigation();
 
   const [isEditing, setIsEditing] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [tanggalLahirDisplay, setTanggalLahirDisplay] = useState<string>('');
   const [jenisKelamin, setJenisKelamin] = useState<
     'Laki-laki' | 'Perempuan' | null
   >(null);
@@ -61,8 +63,19 @@ const ProfileUser = () => {
 
   const onDateChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
     setShowPicker(false);
+
     if (selectedDate) {
       setDate(selectedDate);
+
+      // Format tanggal untuk tampilan
+      const formattedDisplayDate = selectedDate.toLocaleDateString('id-ID', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      });
+      setTanggalLahirDisplay(formattedDisplayDate); // Set state tampilan
+
+      // Simpan tanggal dalam format ISO untuk database
       handleChange('tanggalLahir', selectedDate.toISOString());
     }
   };
@@ -73,10 +86,13 @@ const ProfileUser = () => {
         const currentUser = auth().currentUser;
         if (currentUser) {
           const userId = currentUser.uid;
+
+          // Ambil data dari koleksi `users` untuk profil dasar
           const userDoc = await firestore()
             .collection('users')
             .doc(userId)
             .get();
+
           if (userDoc.exists) {
             const userData = userDoc.data();
             setUserProfile({
@@ -85,21 +101,37 @@ const ProfileUser = () => {
               avatar: userData?.photoURL || Avatar,
             });
           }
-        }
-        const profileDoc = await firestore()
-          .collection('data')
-          .doc('user')
-          .get();
-        if (profileDoc.exists) {
-          const profileData = profileDoc.data();
-          setProfileData({
-            namaBayi: profileData?.namaBayi || '',
-            jenisKelamin: profileData?.jenisKelamin || '',
-            usia: profileData?.usia || '',
-            tanggalLahir: profileData?.tanggalLahir || '',
-            ibuKandung: profileData?.ibuKandung || '',
-            alamat: profileData?.alamat || '',
-          });
+
+          // Ambil data dari koleksi `data` untuk detail profil pengguna
+          const profileDoc = await firestore()
+            .collection('data')
+            .doc(userId) // Gunakan `userId` untuk dokumen unik pengguna
+            .get();
+
+          if (profileDoc.exists) {
+            const profileData = profileDoc.data();
+
+            // Periksa apakah profileData.tanggalLahir adalah string dan dapat dikonversi
+            const formattedTanggalLahir = profileData?.tanggalLahir
+              ? new Date(profileData.tanggalLahir).toLocaleDateString('id-ID', {
+                  day: '2-digit',
+                  month: '2-digit',
+                  year: 'numeric',
+                })
+              : '';
+
+            setProfileData({
+              namaBayi: profileData?.namaBayi || 'Tidak ada data',
+              jenisKelamin: profileData?.jenisKelamin || 'Tidak ada data',
+              usia: profileData?.usia || 'Tidak ada data',
+              tanggalLahir: profileData?.tanggalLahir || 'Tidak ada data',
+              ibuKandung: profileData?.ibuKandung || 'Tidak ada data',
+              alamat: profileData?.alamat || 'Tidak ada data',
+            });
+
+            // Set tanggal tampilan
+            setTanggalLahirDisplay(formattedTanggalLahir);
+          }
         }
       } catch (error) {
         console.error('Error fetching data: ', error);
@@ -108,17 +140,68 @@ const ProfileUser = () => {
     fetchData();
   }, []);
 
-  const handleEdit = () => setIsEditing(true);
+  const handleEdit = () => {
+    if (isProcessing) return; // Abaikan jika masih dalam proses
+    setIsProcessing(true);
+    setIsEditing(true);
+    setTimeout(() => setIsProcessing(false), 500); // 500ms adalah waktu buffer
+  };
 
   const handleSave = async () => {
-    setIsEditing(false);
-    try {
-      await firestore().collection('data').doc('user').update(profileData);
-      Alert.alert('Data berhasil disimpan!');
-    } catch (error) {
-      console.error('Error saving document: ', error);
-      Alert.alert('Terjadi kesalahan saat menyimpan data.');
-    }
+    Alert.alert(
+      'Konfirmasi',
+      'Apakah data sudah sesuai?',
+      [
+        {
+          text: 'Tidak',
+          onPress: () => console.log('Data tidak disimpan'),
+          style: 'cancel', // Tombol pembatalan
+        },
+        {
+          text: 'Ya',
+          onPress: async () => {
+            try {
+              const currentUser = auth().currentUser;
+              if (!currentUser) return; // Pastikan user sudah login
+
+              const userId = currentUser.uid;
+
+              // Jika ada date yang dipilih, simpan dalam format ISO
+              const isoTanggalLahir = date
+                ? date.toISOString()
+                : profileData.tanggalLahir;
+
+              // Simpan profileData dengan format ISO di database
+              await firestore()
+                .collection('data')
+                .doc(userId) // Gunakan userId sebagai ID dokumen
+                .update({
+                  ...profileData,
+                  tanggalLahir: isoTanggalLahir,
+                });
+
+              // Setelah menyimpan, tampilkan tanggal dalam format lokal
+              const formattedTanggalLahir = new Date(
+                isoTanggalLahir,
+              ).toLocaleDateString('id-ID', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+              });
+
+              // Update tanggal untuk tampilan
+              setTanggalLahirDisplay(formattedTanggalLahir);
+              setIsEditing(false); // Kembali ke mode tampilan
+              Alert.alert('Data berhasil disimpan!');
+            } catch (error) {
+              console.error('Error saving document: ', error);
+              Alert.alert('Terjadi kesalahan saat menyimpan data.');
+            }
+          },
+        },
+      ],
+      {cancelable: false},
+    );
   };
 
   const handleChange = (field: keyof typeof profileData, value: string) => {
@@ -128,8 +211,12 @@ const ProfileUser = () => {
   return (
     <ScrollView
       style={styles.scrollView}
-      contentContainerStyle={styles.contentContainer}>
-      <TouchableOpacity onPress={handleEdit}>
+      contentContainerStyle={styles.contentContainer}
+      keyboardShouldPersistTaps="handled">
+      <TouchableOpacity
+        onPress={handleEdit}
+        style={[styles.touchArea, {padding: 10}]}
+        hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}>
         <Image source={Pen} style={styles.pen} />
       </TouchableOpacity>
       <Image source={Bayi} style={styles.bayi} />
@@ -198,12 +285,28 @@ const ProfileUser = () => {
             <TextInput
               style={styles.isiEdit}
               value={profileData.usia}
-              onChangeText={text => handleChange('usia', text)}
+              keyboardType="numeric" // Memastikan keyboard hanya menampilkan angka
+              onChangeText={text => {
+                // Konversi text ke angka
+                const numericValue = parseInt(text, 10);
+
+                // Validasi agar hanya angka 0-24 yang diperbolehkan
+                if (
+                  !isNaN(numericValue) &&
+                  numericValue >= 0 &&
+                  numericValue <= 24
+                ) {
+                  handleChange('usia', text);
+                } else if (text === '') {
+                  // Izinkan menghapus input
+                  handleChange('usia', '');
+                }
+              }}
             />
           ) : (
             <Text style={styles.isiProfile2}>{profileData.usia}</Text>
           )}
-          <Text style={styles.isiProfile2}>Bulan</Text>
+          <Text style={styles.bulan}>Bulan</Text>
         </View>
         <View style={isEditing ? styles.line2 : styles.line}></View>
         <View style={styles.profileBayi}>
@@ -211,15 +314,13 @@ const ProfileUser = () => {
           {isEditing ? (
             <TouchableOpacity onPress={() => setShowPicker(true)}>
               <TextInput
-                value={date ? date.toLocaleDateString() : ''}
+                value={tanggalLahirDisplay}
                 editable={false}
                 style={styles.isiEdit}
               />
             </TouchableOpacity>
           ) : (
-            <Text style={styles.isiProfile2}>
-              {date ? date.toLocaleDateString() : 'tidak ada data'}
-            </Text>
+            <Text style={styles.isiProfile2}>{tanggalLahirDisplay}</Text>
           )}
           {showPicker && (
             <DateTimePicker
@@ -307,12 +408,19 @@ const styles = StyleSheet.create({
     marginTop: 40,
     marginBottom: 20,
   },
-  pen: {
+  touchArea: {
     position: 'absolute',
+    top: 15,
+    right: 10,
+    zIndex: 10,
+    backgroundColor: 'transparent', // Tidak terlihat
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  pen: {
     width: 31,
     height: 30,
-    top: 15,
-    right: -180,
+    resizeMode: 'contain',
   },
   profile: {
     fontSize: 22,
@@ -325,7 +433,7 @@ const styles = StyleSheet.create({
 
   //Profile Bayi
   profileContainer: {
-    width: 380,
+    width: '95%',
     height: 350,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
@@ -355,6 +463,13 @@ const styles = StyleSheet.create({
     marginLeft: 15,
     lineHeight: 30,
   },
+  bulan: {
+    color: '#2F4666',
+    fontSize: 20,
+    fontFamily: 'Livvic-Medium',
+    marginLeft: 5,
+    lineHeight: 30,
+  },
   line: {
     height: 2,
     marginVertical: 10,
@@ -381,8 +496,8 @@ const styles = StyleSheet.create({
   },
   radioButton: {
     flexDirection: 'row',
-    marginRight: 90,
-    marginLeft: -70,
+    marginRight: 130,
+    marginLeft: -100,
   },
   radioButtonSelected: {
     borderColor: '#FF8261',
@@ -406,6 +521,7 @@ const styles = StyleSheet.create({
   radioText: {
     fontSize: 16,
     fontFamily: 'Livvic-SemiBold',
+    color: '#2F4666',
   },
   submit: {
     width: 357,
@@ -435,7 +551,7 @@ const styles = StyleSheet.create({
 
   //User Profil
   userContainer: {
-    width: 380,
+    width: '95%',
     height: 212,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,

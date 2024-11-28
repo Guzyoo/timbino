@@ -60,6 +60,14 @@
           }
         },
         {
+          "client_id": "502185625116-fn3psa7tgl08q170d2f0nulckola2f2i.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.timbino",
+            "certificate_hash": "3e9e179e4e9abfe6a697de9379e9f43a0bd02a60"
+          }
+        },
+        {
           "client_id": "502185625116-2g9iuh2dt3u9b7be1di6kbv2pshvgpuh.apps.googleusercontent.com",
           "client_type": 3
         }

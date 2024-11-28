@@ -55,23 +55,21 @@ const Daftar = () => {
     try {
       const userDoc = await firestore().collection('users').doc(user.uid).get();
       if (userDoc.exists) {
-        const userData = userDoc.data();
-
         // Data yang akan disimpan
         const data = {
           namaBayi,
           usia,
           ibuKandung,
           alamat,
-          gender: jenisKelamin,
-          birthDate: date?.toISOString(),
+          jenisKelamin: jenisKelamin,
+          tanggalLahir: date?.toISOString(),
           uid: user.uid, // UID pengguna yang login
         };
 
-        // Simpan ke Firestore di koleksi `data`, dokumen `riwayat`
+        // Simpan ke Firestore di koleksi `data`, dokumen dengan nama `user.uid`
         await firestore()
           .collection('data')
-          .doc('user')
+          .doc(user.uid) // dokumen unik untuk setiap pengguna berdasarkan `uid`
           .set(data, {merge: true});
 
         await AsyncStorage.setItem('isLoggedIn', 'true');
@@ -97,7 +95,8 @@ const Daftar = () => {
         <TextInput
           value={namaBayi}
           onChangeText={setNamaBayi}
-          placeholder="Masukkan Nama Bayi"
+          placeholder="Masukkan Nama Bayi  "
+          placeholderTextColor="#4d4e4e"
           style={styles.input}
         />
         <Text style={styles.inputBayi}>Jenis Kelamin</Text>
@@ -151,10 +150,11 @@ const Daftar = () => {
 
         <Text style={styles.inputBayi}>Tanggal Lahir</Text>
         <View style={styles.buttonContent}>
-          <TouchableOpacity onPress={openDatePicker}>
+          <TouchableOpacity onPress={openDatePicker} style={{width: '100%'}}>
             <TextInput
               value={date ? date.toLocaleDateString() : ''}
-              placeholder="Masukkan Tanggal Lahir"
+              placeholder="Masukkan Tanggal Lahir   "
+              placeholderTextColor="#4d4e4e"
               editable={false}
               style={styles.inputLahir}
             />
@@ -175,14 +175,16 @@ const Daftar = () => {
         <TextInput
           value={ibuKandung}
           onChangeText={setIbuKandung}
-          placeholder="Masukkan Nama Ibu Kandung"
+          placeholder="Masukkan Nama Ibu Kandung    "
+          placeholderTextColor="#4d4e4e"
           style={styles.input}
         />
         <Text style={styles.inputBayi}>Alamat</Text>
         <TextInput
           value={alamat}
           onChangeText={setAlamat}
-          placeholder="Masukkan Alamat Rumah"
+          placeholderTextColor="#4d4e4e"
+          placeholder="Masukkan Alamat Rumah   "
           style={styles.input}
         />
         <TouchableOpacity style={styles.button} onPress={saveDataToFirestore}>
@@ -206,6 +208,8 @@ const styles = StyleSheet.create({
   container1: {
     flex: 1,
     alignItems: 'center',
+    width: '100%',
+    paddingHorizontal: 10,
   },
   image: {
     width: 200,
@@ -252,50 +256,49 @@ const styles = StyleSheet.create({
   radioText: {
     fontSize: 16,
     fontFamily: 'Livvic-SemiBold',
+    color: '#2F4666',
   },
   input: {
-    height: 45,
     alignContent: 'center',
     textAlign: 'center',
-    width: 369,
+    width: '100%',
+    flexShrink: 1,
     borderColor: '#2F4666',
     borderWidth: 2,
-    fontSize: 20,
+    fontSize: 18,
     borderRadius: 10,
     marginVertical: 10,
     backgroundColor: '#f0f0f0',
+    color: '#2F4666',
     fontFamily: 'Livvic-SemiBold',
   },
   inputLahir: {
-    alignSelf: 'flex-start',
-    height: 45,
+    alignContent: 'center',
     textAlign: 'center',
-    width: 300,
-    color: '#2F4666',
+    width: '90%',
+    borderColor: '#2F4666',
     borderWidth: 2,
-    fontSize: 20,
+    fontSize: 18,
     borderRadius: 10,
     marginVertical: 10,
-    marginHorizontal: 20,
     backgroundColor: '#f0f0f0',
+    color: '#2F4666',
     fontFamily: 'Livvic-SemiBold',
   },
   buttonContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    width: '100%',
-    paddingRight: 20,
+    width: '98%',
   },
   calendar: {
-    width: 40,
-    height: 40,
-    marginLeft: 10,
+    width: 35,
+    height: 35,
+    marginLeft: -30,
   },
   button: {
     backgroundColor: '#2F4666',
-    height: 50,
-    width: 357,
+    width: '100%',
+    paddingVertical: 10,
     borderRadius: 20,
     marginTop: 20,
     justifyContent: 'center',
@@ -318,7 +321,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     backgroundColor: '#f0f0f0',
     marginVertical: 10,
-    width: 369,
+    width: '100%',
   },
   picker: {
     height: 50,

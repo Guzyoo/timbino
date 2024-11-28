@@ -1,4 +1,3 @@
-// ImageSlider.tsx
 import React from 'react';
 import {
   FlatList,
@@ -32,7 +31,7 @@ const ImageSlider: React.FC<ImageSliderProps> = ({
         onScroll={onScroll}
         pagingEnabled
         snapToAlignment="start"
-        snapToInterval={width * 0.8} // Mengatur jarak slide
+        snapToInterval={width * 0.8 + 10} // Adjust to account for padding and margin
         decelerationRate="fast"
         renderItem={({item}) => <Image source={item} style={styles.image} />}
         keyExtractor={(item, index) => index.toString()}
@@ -54,14 +53,14 @@ const ImageSlider: React.FC<ImageSliderProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    alignItems: 'center', // Memusatkan slider
+    alignItems: 'center',
   },
   image: {
-    width: width * 0.8, // Lebar gambar yang lebih kecil untuk melihat sisi gambar berikutnya
-    height: 159, // Menyesuaikan tinggi gambar
-    resizeMode: 'cover',
-    borderRadius: 10, // Menambahkan radius untuk sudut yang melengkung
-    marginHorizontal: 5, // Jarak antar gambar
+    width: width * 0.8,
+    height: 159,
+    resizeMode: 'cover', // Ensure the image fills the box but maintains aspect ratio
+    borderRadius: 10,
+    marginHorizontal: 5,
   },
   contentContainer: {
     paddingHorizontal: 10,
@@ -79,7 +78,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 3,
   },
   activeDot: {
-    backgroundColor: '#FF8261', // Sesuaikan dengan warna utama aplikasi
+    backgroundColor: '#FF8261',
     width: 10,
     height: 10,
   },

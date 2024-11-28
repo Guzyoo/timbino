@@ -19,15 +19,18 @@ const SplashScreen = () => {
   useEffect(() => {
     // Fungsi untuk memeriksa status login
     const checkLoginStatus = async () => {
+      const isAdminLoggedIn = await AsyncStorage.getItem('isAdminLoggedIn');
       const isLoggedIn = await AsyncStorage.getItem('isLoggedIn');
-      if (isLoggedIn === 'true') {
+
+      if (isAdminLoggedIn === 'true') {
+        navigation.navigate('DashboardAdminScreen');
+      } else if (isLoggedIn === 'true') {
         navigation.navigate('DashboardUser');
       } else {
-        // Mulai animasi setelah cek login, baru navigasi ke OnBoarding setelah animasi selesai
         Animated.timing(scaleAnim, {
           toValue: 1,
-          duration: 2000, // Durasi animasi 2 detik
-          useNativeDriver: true, // Memanfaatkan native driver untuk performa lebih baik
+          duration: 2000,
+          useNativeDriver: true,
         }).start(() => {
           navigation.replace('OnBoarding');
         });

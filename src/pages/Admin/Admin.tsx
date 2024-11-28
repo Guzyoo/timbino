@@ -6,6 +6,8 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  Alert,
+  ScrollView,
 } from 'react-native';
 import Timbino from '../../assets/images/timbino.png';
 import Lock from '../../assets/icons/lock.png';
@@ -15,6 +17,8 @@ import NonVisible from '../../assets/icons/visible-off.png';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {useNavigation} from '@react-navigation/native';
 import {RootParamList} from '../../navigation/RootParamList';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import auth from '@react-native-firebase/auth';
 
 type AdminScreenNavigationProp = StackNavigationProp<RootParamList, 'Admin'>;
 
@@ -25,6 +29,26 @@ const Admin = () => {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isEmailFocused, setIsEmailFocused] = useState(false);
   const [isPasswordFocused, setIsPasswordFocused] = useState(false);
+
+  const handleLogin = async () => {
+    try {
+      const userCredential = await auth().signInWithEmailAndPassword(
+        email,
+        password,
+      );
+
+      // Simpan status login
+      await AsyncStorage.setItem('isAdminLoggedIn', 'true');
+
+      // Navigasi ke halaman Dashboard Admin
+      navigation.navigate('DashboardAdminScreen');
+    } catch (error) {
+      Alert.alert(
+        'Login Gagal',
+        'Email atau password salah. Silakan coba lagi.',
+      );
+    }
+  };
 
   return (
     <View style={styles.container1}>
@@ -37,57 +61,57 @@ const Admin = () => {
       <View style={styles.loginContainer}>
         <Text style={styles.loginText}>Login Admin</Text>
 
-        <Text style={styles.label}>Email</Text>
-        <View
-          style={[
-            styles.container2,
-            {borderColor: isEmailFocused ? '#007EC6' : '#000000'},
-          ]}>
-          <Image source={Email} style={styles.email} />
-          <TextInput
-            style={styles.input}
-            placeholder="Masukkan email"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            onFocus={() => setIsEmailFocused(true)}
-            onBlur={() => setIsEmailFocused(false)}
-          />
-        </View>
+        <ScrollView>
+          <Text style={styles.label}>Email</Text>
+          <View
+            style={[
+              styles.container2,
+              {borderColor: isEmailFocused ? '#007EC6' : '#000000'},
+            ]}>
+            <Image source={Email} style={styles.email} />
+            <TextInput
+              style={styles.input}
+              placeholder="Masukkan email"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              onFocus={() => setIsEmailFocused(true)}
+              onBlur={() => setIsEmailFocused(false)}
+            />
+          </View>
 
-        <Text style={styles.label}>Password</Text>
-        <View
-          style={[
-            styles.container2,
-            {borderColor: isPasswordFocused ? '#007EC6' : '#000000'},
-          ]}>
-          <Image source={Lock} style={styles.lock} />
-          <TextInput
-            style={styles.input}
-            placeholder="Masukkan password"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry={!isPasswordVisible}
-            onFocus={() => setIsPasswordFocused(true)}
-            onBlur={() => setIsPasswordFocused(false)}
-          />
-          <TouchableOpacity
-            style={styles.visibilityToggle}
-            onPress={() => setIsPasswordVisible(!isPasswordVisible)}>
-            <Image source={isPasswordVisible ? Visible : NonVisible} />
+          <Text style={styles.label}>Password</Text>
+          <View
+            style={[
+              styles.container2,
+              {borderColor: isPasswordFocused ? '#007EC6' : '#000000'},
+            ]}>
+            <Image source={Lock} style={styles.lock} />
+            <TextInput
+              style={styles.input}
+              placeholder="Masukkan password"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={!isPasswordVisible}
+              onFocus={() => setIsPasswordFocused(true)}
+              onBlur={() => setIsPasswordFocused(false)}
+            />
+            <TouchableOpacity
+              style={styles.visibilityToggle}
+              onPress={() => setIsPasswordVisible(!isPasswordVisible)}>
+              <Image source={isPasswordVisible ? Visible : NonVisible} />
+            </TouchableOpacity>
+          </View>
+
+          <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+            <Text style={styles.loginButtonText}>Login</Text>
           </TouchableOpacity>
-        </View>
-
-        <TouchableOpacity
-          style={styles.loginButton}
-          onPress={() => navigation.navigate('DashboardAdminScreen')}>
-          <Text style={styles.loginButtonText}>Login</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}>
-          <Text style={styles.backButtonText}>Kembali</Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => navigation.replace('Login')}>
+            <Text style={styles.backButtonText}>Kembali</Text>
+          </TouchableOpacity>
+        </ScrollView>
       </View>
     </View>
   );
@@ -155,6 +179,7 @@ const styles = StyleSheet.create({
     height: 24,
     width: 24,
     marginRight: 10,
+    color: '#000000',
   },
   lock: {
     width: 19,
@@ -167,6 +192,7 @@ const styles = StyleSheet.create({
     height: 45,
     fontFamily: 'Livvic-Regular',
     fontSize: 13,
+    color: '#000000',
   },
   visibilityToggle: {
     position: 'absolute',
@@ -195,6 +221,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderRadius: 20,
     alignItems: 'center',
+    marginBottom: 20,
   },
   backButtonText: {
     color: '#2F4666',

@@ -4,9 +4,6 @@ import SplashScreen from '../pages/SplashScreen/SplashScreen';
 import OnBoarding from '../pages/OnBoarding/Index';
 import Login from '../pages/Login/Login';
 import Admin from '../pages/Admin/Admin';
-import BeratBadan from '../pages/Menu/MenuUser/BeratBadan';
-import TinggiBadan from '../pages/Menu/MenuUser/TinggiBadan';
-import HubungiScreen from '../pages/Menu/MenuUser/Hubungi';
 import ProfileUser from '../pages/Profile/ProfileUser/ProfileUser';
 import DashboardUser from '../pages/Home/DashboardUser';
 import Calendar from '../pages/Menu/MenuUser/Calendar';
@@ -14,7 +11,17 @@ import PanduanBayi from '../pages/Menu/MenuUser/PanduanBayi';
 import DashboardAdminScreen from '../pages/Home/DashboardAdmin';
 import Daftar from '../pages/Daftar/Daftar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Menu from '../pages/Menu/Menu';
+import TimbanganBayi from '../pages/Menu/MenuUser/TimbanganTerakhir';
+import KelolaAkunScreen from '../pages/Menu/MenuAdmin/KelolaAkun';
+import DetailAkun from '../pages/Menu/MenuAdmin/DetailAkun';
+import Menu from '../pages/Menu/MenuAdmin/Menu';
+import PanduanTumbuh from '../pages/Menu/MenuUser/DetailMenu/InformasiTumbuh';
+import ResepMakanan from '../pages/Menu/MenuUser/DetailMenu/ResepMakanan';
+import MakananSehat from '../pages/Menu/MenuUser/DetailMenu/MakananSehat';
+import DataManual from '../pages/Menu/MenuAdmin/DataManual';
+import Resep6 from '../pages/Menu/MenuUser/DetailMenu/DetailResep1/DetailResep1';
+import Mpasi from '../pages/Menu/MenuUser/DetailMenu/DetailResep1/JadwalMPASI';
+import Resep13 from '../pages/Menu/MenuUser/DetailMenu/DetailResep1/DetailResep2';
 
 const Stack = createStackNavigator();
 
@@ -23,6 +30,7 @@ const AppNavigator = () => {
   const [hasSeenOnboarding, setHasSeenOnboarding] = useState<boolean | null>(
     null,
   );
+  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState<boolean | null>(null);
 
   useEffect(() => {
     const checkLoginStatus = async () => {
@@ -31,9 +39,11 @@ const AppNavigator = () => {
         const onboardingStatus = await AsyncStorage.getItem(
           'hasSeenOnboarding',
         );
+        const adminStatus = await AsyncStorage.getItem('isAdminLoggedIn');
 
         setIsLoggedIn(loginStatus === 'true');
         setHasSeenOnboarding(onboardingStatus === 'true');
+        setIsAdminLoggedIn(adminStatus === 'true');
       } catch (error) {
         console.log('Error checking login status:', error);
       }
@@ -42,8 +52,12 @@ const AppNavigator = () => {
     checkLoginStatus();
   }, []);
 
-  if (isLoggedIn === null || hasSeenOnboarding === null) {
-    return null; // Sembunyikan layar sementara pengecekan berlangsung
+  if (
+    isLoggedIn === null ||
+    hasSeenOnboarding === null ||
+    isAdminLoggedIn === null
+  ) {
+    return null;
   }
 
   return (
@@ -51,6 +65,8 @@ const AppNavigator = () => {
       initialRouteName={
         !hasSeenOnboarding
           ? 'SplashScreen'
+          : isAdminLoggedIn
+          ? 'DashboardAdminScreen'
           : isLoggedIn
           ? 'DashboardUser'
           : 'Login'
@@ -63,15 +79,23 @@ const AppNavigator = () => {
       <Stack.Screen name="Admin" component={Admin} />
       <Stack.Screen name="Calendar" component={Calendar} />
       <Stack.Screen name="PanduanBayi" component={PanduanBayi} />
+      <Stack.Screen name="PanduanTumbuh" component={PanduanTumbuh} />
+      <Stack.Screen name="ResepMakanan" component={ResepMakanan} />
+      <Stack.Screen name="MakananSehat" component={MakananSehat} />
+      <Stack.Screen name="TimbanganBayi" component={TimbanganBayi} />
+      <Stack.Screen name="Resep6" component={Resep6} />
+      <Stack.Screen name="Resep13" component={Resep13} />
+      <Stack.Screen name="Mpasi" component={Mpasi} />
       <Stack.Screen
         name="DashboardAdminScreen"
         component={DashboardAdminScreen}
       />
       <Stack.Screen name="ProfileUser" component={ProfileUser} />
-      <Stack.Screen name="BeratBadan" component={BeratBadan} />
-      <Stack.Screen name="TinggiBadan" component={TinggiBadan} />
-      <Stack.Screen name="HubungiScreen" component={HubungiScreen} />
       <Stack.Screen name="DashboardUser" component={DashboardUser} />
+      <Stack.Screen name="KelolaAkunScreen" component={KelolaAkunScreen} />
+      <Stack.Screen name="DetailAkun" component={DetailAkun} />
+      <Stack.Screen name="MenuTimbang" component={Menu} />
+      <Stack.Screen name="DataManual" component={DataManual} />
     </Stack.Navigator>
   );
 };

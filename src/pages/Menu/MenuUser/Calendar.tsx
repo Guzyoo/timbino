@@ -1,21 +1,62 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 import {Calendar} from 'react-native-calendars';
 
 const CalendarScreen = () => {
+  const [markedDates, setMarkedDates] = useState<Record<string, any>>({});
+  const [currentMonth, setCurrentMonth] = useState('');
+
+  // Fungsi untuk menandai tanggal 19 setiap bulan
+  const generateMarkedDates = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const dates: Record<string, any> = {};
+
+    // Tandai tanggal 19 untuk setiap bulan pada tahun berjalan
+    for (let month = 0; month < 12; month++) {
+      const monthString = (month + 1).toString().padStart(2, '0');
+      dates[`${year}-${monthString}-14`] = {
+        selected: true,
+        selectedColor: '#00ADF5',
+      };
+    }
+    setMarkedDates(dates);
+
+    // Menyimpan bulan saat ini untuk tampilan importantDates
+    const monthNames = [
+      'Januari',
+      'Februari',
+      'Maret',
+      'April',
+      'Mei',
+      'Juni',
+      'Juli',
+      'Agustus',
+      'September',
+      'Oktober',
+      'November',
+      'Desember',
+    ];
+    setCurrentMonth(monthNames[today.getMonth()]);
+  };
+
+  useEffect(() => {
+    generateMarkedDates();
+  }, []);
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Jadwal Posyandu</Text>
       <Calendar
-        // Menyesuaikan gaya pada kalender
         style={styles.calendar}
+        markedDates={markedDates}
         theme={{
           backgroundColor: '#ffffff',
           calendarBackground: '#FFFF',
           textSectionTitleColor: '#2F4666',
-          selectedDayBackgroundColor: '#00adf5',
+          selectedDayBackgroundColor: '#FF8261',
           selectedDayTextColor: '#ffffff',
-          todayTextColor: '#00adf5',
+          todayTextColor: '#FF8261',
           dayTextColor: '#2F4666',
           textDisabledColor: '#d9e1e8',
           dotColor: '#00adf5',
@@ -29,17 +70,14 @@ const CalendarScreen = () => {
           textMonthFontSize: 18,
           textDayHeaderFontSize: 14,
         }}
-        markedDates={{
-          '2024-12-25': {marked: true, dotColor: 'blue'},
-          '2024-01-01': {marked: true, dotColor: 'green'},
-        }}
       />
+
       <View style={styles.importantDates}>
-        <Text style={styles.dateImportant}>19</Text>
+        <Text style={styles.dateImportant}>14</Text>
         <View>
-          <Text style={styles.importantTitle}>Posyandu Harapan Kita</Text>
+          <Text style={styles.importantTitle}>Posyandu Cempaka</Text>
           <Text style={styles.importantSchedule}>
-            Kamis, Jam 08:00 - Selesai
+            {`Tanggal 14 ${currentMonth}, Jam 08:00 - Selesai`}
           </Text>
         </View>
       </View>
@@ -71,17 +109,20 @@ const styles = StyleSheet.create({
   importantDates: {
     marginTop: 20,
     flexDirection: 'row',
-    width: 350,
+    width: '100%',
     height: 76,
     borderRadius: 20,
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
     borderWidth: 1,
     borderColor: 'rgba(0, 0, 0, 0.2)',
     backgroundColor: '#FFFFFF',
     alignItems: 'center',
     alignSelf: 'center',
     justifyContent: 'space-evenly',
+    shadowColor: '#000000',
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 4,
   },
   dateImportant: {
     fontSize: 24,

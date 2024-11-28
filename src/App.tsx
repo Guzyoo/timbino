@@ -10,6 +10,7 @@ const App = () => {
       webClientId:
         '502185625116-2g9iuh2dt3u9b7be1di6kbv2pshvgpuh.apps.googleusercontent.com', // copy client_id from google-services.json file where client_type:3
       offlineAccess: true,
+      forceCodeForRefreshToken: true,
     });
   }, []);
 

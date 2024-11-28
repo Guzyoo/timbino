@@ -5,9 +5,8 @@ import {
   Image,
   TouchableOpacity,
   StyleSheet,
-  Button,
   Alert,
-  TextInput,
+  ScrollView,
 } from 'react-native';
 import Timbino from '../../assets/images/timbino.png';
 import Google from '../../assets/images/google.png';
@@ -61,16 +60,16 @@ const Login = () => {
       );
       const user = userCredential.user;
 
-      // Periksa apakah pengguna sudah ada di Firestore
-      const userDoc = await firestore().collection('users').doc(user.uid).get();
+      // Periksa apakah pengguna sudah ada di collection 'data'
+      const dataDoc = await firestore().collection('data').doc(user.uid).get();
 
-      if (userDoc.exists) {
-        // Jika pengguna sudah ada, arahkan ke DashboardUser
+      if (dataDoc.exists) {
+        // Jika pengguna sudah ada di collection 'data', arahkan ke DashboardUser
         await AsyncStorage.setItem('isLoggedIn', 'true');
         await AsyncStorage.setItem('uid', user.uid);
         navigation.replace('DashboardUser');
       } else {
-        // Jika pengguna belum ada, simpan data di Firestore dan arahkan ke Daftar
+        // Jika pengguna belum ada di collection 'data', arahkan ke halaman Daftar
         const userData = {
           uid: user.uid,
           email: user.email,
@@ -79,6 +78,7 @@ const Login = () => {
           createdAt: new Date(),
         };
 
+        // Simpan data pengguna di collection 'users' sebagai cadangan
         await firestore()
           .collection('users')
           .doc(user.uid)
@@ -90,11 +90,13 @@ const Login = () => {
       }
 
       console.log('Login berhasil!');
-    } catch (error: any) {
-      console.error('Google Sign-In Error:', error);
+    } catch (error: unknown) {
+      // Menambahkan tipe `unknown` pada parameter error
+      const err = error as Error; // Meng-cast error ke tipe Error
+      console.error('Google Sign-In Error:', err);
       Alert.alert(
         'Login Gagal',
-        error.message || 'Terjadi kesalahan saat login.',
+        err.message || 'Terjadi kesalahan saat login.',
       );
     }
   };
@@ -106,21 +108,27 @@ const Login = () => {
           <Image source={Person} style={styles.person} />
         </TouchableOpacity>
       </View>
-      <Text style={styles.h1}>TIMBINO</Text>
-      <Text style={styles.text}>
-        Timbangan IoT untuk Monitoring Bayi dan Integrasi Nutrisi Optimal
-      </Text>
-      <Image source={Timbino} style={styles.image} />
-      <Text style={styles.h2}>Ayo Mulai!</Text>
-      <Text style={styles.textBaris}>
-        Untuk membantu orang tua memantau tumbuh kembang dan informasi kesehatan
-        bayi melalui aplikasi.
-      </Text>
-      <TouchableOpacity style={styles.button} onPress={handleGoogleLogin}>
-        <Image source={Google} style={styles.google} />
-        <Text style={styles.buttonText}>Masuk dengan Google</Text>
-      </TouchableOpacity>
-      {errorMessage && <Text style={styles.errorText}>{errorMessage}</Text>}
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.contentContainer}>
+        <Text style={styles.h1}>TIMBINO</Text>
+        <Text style={styles.text}>
+          Timbangan IoT untuk Monitoring Bayi dan Integrasi Nutrisi Optimal
+        </Text>
+        <Image source={Timbino} style={styles.image} />
+        <View>
+          <Text style={styles.h2}>Ayo Mulai!</Text>
+          <Text style={styles.textBaris}>
+            Untuk membantu orang tua memantau tumbuh kembang dan informasi
+            kesehatan bayi melalui aplikasi.
+          </Text>
+        </View>
+        <TouchableOpacity style={styles.button} onPress={handleGoogleLogin}>
+          <Image source={Google} style={styles.google} />
+          <Text style={styles.buttonText}>Masuk dengan Google</Text>
+        </TouchableOpacity>
+        {errorMessage && <Text style={styles.errorText}>{errorMessage}</Text>}
+      </ScrollView>
     </View>
   );
 };
@@ -146,6 +154,15 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(0, 0, 0, 0.2)',
     justifyContent: 'center',
     alignItems: 'center',
+    zIndex: 10,
+  },
+  scroll: {
+    flex: 1,
+  },
+  contentContainer: {
+    flexGrow: 1,
+    alignItems: 'center',
+    paddingTop: 100,
   },
   person: {
     width: 35,
@@ -167,7 +184,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Livvic-Bold',
     color: '#2F4666',
     alignSelf: 'flex-start',
-    marginHorizontal: 38,
+    marginLeft: 25,
   },
   textBaris: {
     fontSize: 16,

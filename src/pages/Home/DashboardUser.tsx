@@ -1,5 +1,5 @@
 // Import Packages
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -12,9 +12,13 @@ import {
   Alert,
 } from 'react-native';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
+import auth from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
+import {Linking} from 'react-native';
+
 import {RootParamList} from '../../navigation/RootParamList';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 
@@ -28,23 +32,80 @@ import Exit from '../../assets/icons/exit.png';
 import Line from '../../assets/icons/line.png';
 import Weight from '../../assets/icons/berat.png';
 import Height from '../../assets/icons/tinggi.png';
-import Contact from '../../assets/icons/kontak.png';
+import Tanggal from '../../assets/icons/time.png';
+import Call from '../../assets/icons/call.png';
 import HomeIcon from '../../assets/icons/home.png';
 import CalendarIcon from '../../assets/icons/calendar.png';
 import ProfileIcon from '../../assets/icons/profile.png';
 import ImageSlider from './ImageSlider';
 import ProfileUser from '../Profile/ProfileUser/ProfileUser';
 import Calendar from '../Menu/MenuUser/Calendar';
+import {ScrollView} from 'react-native-gesture-handler';
 
 type DashboardUserScreenNavigationProp = StackNavigationProp<
   RootParamList,
   'DashboardUser'
 >;
 
+interface UserData {
+  uid: string;
+  email: string;
+  namaBayi?: string;
+  tanggalLahir?: string;
+  jenisKelamin?: string;
+  ibuKandung?: string;
+  usia?: number;
+  alamat?: string;
+  records: {
+    date: string;
+    sensorData: {
+      BMI: number;
+      berat: number;
+      tinggi: number;
+      status: number;
+    };
+  }[];
+}
+
+const formatTanggalRecord = (tanggal: any) => {
+  console.log('Tanggal yang diterima:', tanggal); // Debugging log
+
+  // Konversi string ISO ke Date jika diperlukan
+  const dateObj = typeof tanggal === 'string' ? new Date(tanggal) : tanggal;
+
+  // Pastikan dateObj adalah Date yang valid
+  if (!(dateObj instanceof Date) || isNaN(dateObj.getTime())) {
+    return 'Tidak ada data';
+  }
+
+  return dateObj.toLocaleDateString('id-ID', {
+    day: '2-digit',
+    month: '2-digit',
+    year: '2-digit',
+  });
+};
+
 const {width} = Dimensions.get('screen');
 
 const DashboardUser = () => {
   const navigation = useNavigation<DashboardUserScreenNavigationProp>();
+  const [profileData, setProfileData] = useState<UserData>({
+    uid: '',
+    email: '',
+    namaBayi: '',
+    tanggalLahir: '',
+    jenisKelamin: '',
+    ibuKandung: '',
+    usia: 0,
+    alamat: '',
+    records: [], // Tambahkan records sebagai array kosong
+  });
+
+  const sortedRecords = (profileData.records || []).sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+  );
+
+  const latestRecord = sortedRecords[0] || null;
 
   // Image Slider
   const [activeIndex, setActiveIndex] = useState(0);
@@ -54,6 +115,50 @@ const DashboardUser = () => {
     const slide = Math.round(event.nativeEvent.contentOffset.x / (width * 0.7));
     setActiveIndex(slide);
   };
+
+  useEffect(() => {
+    const fetchProfileData = async () => {
+      try {
+        const currentUser = auth().currentUser;
+        if (!currentUser) return;
+
+        const userId = currentUser.uid;
+
+        const unsubscribe = firestore()
+          .collection('data')
+          .doc(userId)
+          .onSnapshot(
+            docSnapshot => {
+              if (docSnapshot.exists) {
+                const profileData = docSnapshot.data();
+                setProfileData(prevData => ({
+                  uid: currentUser.uid,
+                  email: currentUser.email || 'Tidak ada email',
+                  namaBayi: profileData?.namaBayi || 'Tidak ada data',
+                  jenisKelamin: profileData?.jenisKelamin || 'Tidak ada data',
+                  usia: profileData?.usia || 0,
+                  tanggalLahir: profileData?.tanggalLahir || 'Tidak ada data',
+                  ibuKandung: profileData?.ibuKandung || 'Tidak ada data',
+                  alamat: profileData?.alamat || 'Tidak ada data',
+                  records: profileData?.records || [],
+                }));
+              } else {
+                console.log('Document does not exist.');
+              }
+            },
+            error => {
+              console.error('Error fetching data: ', error);
+            },
+          );
+
+        return unsubscribe; // Pastikan listener dihapus saat komponen unmount
+      } catch (error) {
+        console.error('Error fetching profile data:', error);
+      }
+    };
+
+    fetchProfileData();
+  }, []);
 
   // Handle Logout
   const handleLogout = () => {
@@ -88,67 +193,118 @@ const DashboardUser = () => {
   };
 
   return (
-    <View style={styles.container1}>
+    <ScrollView style={styles.scrollView}>
       <View style={styles.header}>
         <Image source={Timbino} style={styles.timbino} />
         <Text style={styles.timbinoText}>Timbino</Text>
       </View>
-
-      <View style={styles.container2}>
-        <View>
-          <Text style={styles.welcomeText}>Selamat Datang</Text>
-          <Text style={styles.usernameText}>IKHSAN</Text>
-        </View>
-        <TouchableOpacity onPress={handleLogout}>
-          <View style={styles.exitContainer}>
-            <Image source={Exit} style={styles.exit} />
-            <Text style={styles.exitText}> Keluar</Text>
+      <View style={styles.container1}>
+        <View style={styles.container2}>
+          <View>
+            <Text style={styles.welcomeText}>Selamat Datang</Text>
+            <Text style={styles.usernameText}>{profileData?.namaBayi}</Text>
           </View>
-        </TouchableOpacity>
-      </View>
-
-      <View style={{position: 'absolute', top: 180}}>
-        <ImageSlider
-          images={images}
-          onScroll={onScroll}
-          activeIndex={activeIndex}
-        />
-      </View>
-
-      <View style={styles.containerNavigasi}>
-        <View style={styles.container3}>
-          <Image source={Line} style={styles.line} />
-          <Text style={styles.navigasi}>Navigasi</Text>
+          <TouchableOpacity onPress={handleLogout}>
+            <View style={styles.exitContainer}>
+              <Image source={Exit} style={styles.exit} />
+              <Text style={styles.exitText}> Keluar</Text>
+            </View>
+          </TouchableOpacity>
         </View>
-      </View>
+        <View style={{position: 'absolute', top: 120}}>
+          <ImageSlider
+            images={images}
+            onScroll={onScroll}
+            activeIndex={activeIndex}
+          />
+        </View>
 
-      <View style={styles.container4}>
-        <TouchableOpacity onPress={() => navigation.navigate('BeratBadan')}>
+        <View style={styles.containerNavigasi}>
+          <View style={styles.container3}>
+            <Image source={Line} style={styles.line} />
+            <Text style={styles.navigasi}>Navigasi</Text>
+          </View>
+        </View>
+
+        <TouchableOpacity
+          style={styles.container4}
+          onPress={() => navigation.navigate('TimbanganBayi')}>
+          <View style={styles.statusContainer}>
+            <View style={styles.kotak}></View>
+            <Text style={styles.status}>
+              {latestRecord
+                ? latestRecord.sensorData.status === 1
+                  ? 'Kurus'
+                  : latestRecord.sensorData.status === 2
+                  ? 'Proporsional'
+                  : latestRecord.sensorData.status === 3
+                  ? 'Gemuk'
+                  : 'Obesitas'
+                : 'Tidak ada data'}
+            </Text>
+          </View>
+          <View style={styles.navigation}>
+            <Image source={Tanggal} style={styles.time} />
+            <Text style={styles.navigationText}>Tanggal</Text>
+            <Text style={styles.isiRiwayat}>
+              {latestRecord
+                ? formatTanggalRecord(latestRecord.date)
+                : 'Tidak ada'}
+            </Text>
+          </View>
           <View style={styles.navigation}>
             <Image source={Weight} style={styles.weight} />
             <Text style={styles.navigationText}>Berat Badan</Text>
+            <Text style={styles.isiRiwayat}>
+              {latestRecord
+                ? latestRecord.sensorData.berat % 1 === 0
+                  ? `${latestRecord.sensorData.berat} kg`
+                  : `${latestRecord.sensorData.berat.toFixed(1)} kg`
+                : 'Tidak ada'}
+            </Text>
           </View>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('TinggiBadan')}>
           <View style={styles.navigation}>
             <Image source={Height} style={styles.height} />
             <Text style={styles.navigationText}>Tinggi Badan</Text>
+            <Text style={styles.isiRiwayat}>
+              {latestRecord
+                ? latestRecord.sensorData.tinggi % 1 === 0
+                  ? `${latestRecord.sensorData.tinggi} cm`
+                  : `${latestRecord.sensorData.tinggi.toFixed(1)} cm`
+                : 'Tidak ada'}
+            </Text>
           </View>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('HubungiScreen')}>
-          <View style={styles.navigation}>
-            <Image source={Contact} style={styles.contact} />
-            <Text style={styles.navigationText}>Hubungi</Text>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('PanduanBayi')}
+          style={{width: '100%'}}>
+          <View style={styles.container5}>
+            <Image source={Tumbuh} style={styles.tumbuh} />
+            <Text style={styles.tumbuhText}>Panduan Tumbuh Kembang Bayi</Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => {
+            const phoneNumber = '+6281808213600'; // Nomor dengan kode negara
+            const url = `whatsapp://send?phone=${+6281808213600}&text=Halo, saya tertarik untuk bertanya tentang layanan Posyandu.`;
+
+            Linking.openURL(url).catch(() => {
+              Alert.alert(
+                'Error',
+                'WhatsApp tidak terinstal atau URL tidak valid.',
+              );
+            });
+          }}
+          style={{width: '100%'}}>
+          <View style={styles.containerPos}>
+            <Text style={styles.namaPos}>Posyandu Cempaka</Text>
+            <Text style={styles.alamatPos}>Benggala Tengah RW 11</Text>
+            <Text style={styles.nomor}>0818-0821-3600</Text>
+            <Image source={Call} style={styles.call} />
           </View>
         </TouchableOpacity>
       </View>
-      <TouchableOpacity onPress={() => navigation.navigate('PanduanBayi')}>
-        <View style={styles.container5}>
-          <Image source={Tumbuh} style={styles.tumbuh} />
-          <Text style={styles.tumbuhText}>Panduan Tumbuh Kembang Bayi</Text>
-        </View>
-      </TouchableOpacity>
-    </View>
+    </ScrollView>
   );
 };
 
@@ -213,6 +369,12 @@ const styles = StyleSheet.create({
   container1: {
     flex: 1,
     alignItems: 'center',
+    width: '100%',
+    paddingHorizontal: 15,
+    backgroundColor: '#E3F9FF',
+    justifyContent: 'flex-start',
+  },
+  scrollView: {
     backgroundColor: '#E3F9FF',
   },
 
@@ -248,7 +410,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     height: 67,
     borderRadius: 20,
-    width: '90%',
+    width: '100%',
     shadowColor: '#000000',
     shadowOffset: {width: 0, height: 4},
     shadowOpacity: 0.2,
@@ -293,13 +455,12 @@ const styles = StyleSheet.create({
   // Navigasi
   containerNavigasi: {
     alignSelf: 'flex-start',
-    marginBottom: 20,
+    marginBottom: 10,
   },
   container3: {
     marginTop: 220,
-    marginBottom: 20,
+    marginBottom: 10,
     flexDirection: 'row',
-    paddingLeft: 20,
     alignItems: 'center',
   },
   line: {
@@ -318,49 +479,78 @@ const styles = StyleSheet.create({
   // Navigasi Style Container
   container4: {
     flexDirection: 'row',
-    marginHorizontal: 8,
-  },
-  navigation: {
-    width: 110,
-    height: 110,
+    height: 177,
+    width: '100%',
     borderRadius: 20,
-    backgroundColor: '#FFFFFF',
     alignItems: 'center',
-    justifyContent: 'center',
-    marginHorizontal: 12,
+    justifyContent: 'space-evenly',
+    backgroundColor: '#FFFFFF',
     shadowColor: '#000000',
     shadowOffset: {width: 0, height: 4},
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 4,
+  },
+  navigation: {
+    width: 93,
+    height: 103,
+    borderRadius: 15,
+    backgroundColor: '#EEF6FE',
+    alignItems: 'center',
+    marginTop: 25,
+  },
+  status: {
+    color: '#2F4666',
+    fontFamily: 'Livvic-SemiBold',
+    fontSize: 20,
+    marginLeft: 8,
+    marginTop: -2,
+  },
+  statusContainer: {
+    flexDirection: 'row',
+    position: 'absolute',
+    left: 15,
+    top: 15,
+    textAlignVertical: 'center',
+  },
+  kotak: {
+    backgroundColor: '#FF8261',
+    width: 5,
+    height: 25,
+  },
+  isiRiwayat: {
+    marginTop: 10,
+    fontFamily: 'Livvic-SemiBold',
+    fontSize: 16,
+    color: '#2F4666',
   },
   navigationText: {
     color: '#2F4666',
     fontSize: 12,
     fontFamily: 'Livvic-Regular',
   },
+  time: {
+    height: 34,
+    width: 34,
+    marginTop: 10,
+  },
   weight: {
-    width: 45,
-    height: 52,
-    marginBottom: 8,
+    width: 29,
+    height: 34,
+    marginTop: 10,
   },
   height: {
-    width: 50,
-    height: 50,
-    marginBottom: 8,
-  },
-  contact: {
-    width: 42,
-    height: 52,
-    marginBottom: 8,
+    width: 34,
+    height: 34,
+    marginTop: 10,
   },
   container5: {
-    height: 120,
-    width: 380,
-    marginTop: 20,
+    height: 177,
+    marginVertical: 20,
+    width: '100%',
     borderRadius: 20,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'space-evenly',
     backgroundColor: '#FFFFFF',
     shadowColor: '#000000',
     shadowOffset: {width: 0, height: 4},
@@ -368,15 +558,58 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 4,
   },
-  tumbuh: {
-    width: 168,
-    height: 66,
-  },
+  tumbuh: {},
   tumbuhText: {
     color: '#2F4666',
     fontSize: 20,
     fontFamily: 'Livvic-Medium',
     marginVertical: 8,
+  },
+
+  // Posyandu Section
+  containerPos: {
+    height: 147,
+    width: '100%',
+    paddingLeft: 20,
+    marginBottom: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#000000',
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 4,
+    alignItems: 'flex-start',
+    textAlign: 'left',
+  },
+  namaPos: {
+    color: '#2F4666',
+    fontFamily: 'Livvic-Bold',
+    fontSize: 20,
+    marginBottom: 7,
+    textAlign: 'left',
+  },
+  alamatPos: {
+    color: '#2F4666',
+    fontFamily: 'Livvic-SemiBold',
+    fontSize: 13,
+    marginBottom: 7,
+    textAlign: 'left',
+  },
+  nomor: {
+    fontFamily: 'Livvic-SemiBold',
+    fontSize: 24,
+    color: '#2F4666',
+    textAlign: 'left',
+  },
+
+  call: {
+    width: 40,
+    height: 40,
+    position: 'absolute',
+    right: 20,
+    top: 30,
   },
 });
 

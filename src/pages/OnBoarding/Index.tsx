@@ -48,11 +48,13 @@ const OnBoarding = () => {
         Timbangan IoT untuk Monitoring Bayi dan Integrasi Nutrisi Optimal
       </Text>
       <Image source={Timbino} style={styles.image} />
-      <Text style={styles.h2}>Ayo Mulai!</Text>
-      <Text style={styles.textBaris}>
-        Untuk membantu orang tua memantau tumbuh kembang dan informasi kesehatan
-        bayi melalaui aplikasi.
-      </Text>
+      <View>
+        <Text style={styles.h2}>Ayo Mulai!</Text>
+        <Text style={styles.textBaris}>
+          Untuk membantu orang tua memantau tumbuh kembang dan informasi
+          kesehatan bayi melalaui aplikasi.
+        </Text>
+      </View>
       <TouchableOpacity style={styles.button} onPress={completeOnboarding}>
         <Text style={styles.buttonText}>Mulai</Text>
       </TouchableOpacity>
@@ -84,7 +86,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Livvic-Bold',
     color: '#2F4666',
     alignSelf: 'flex-start',
-    marginHorizontal: 38,
+    marginLeft: 25,
   },
   textBaris: {
     fontSize: 16,
