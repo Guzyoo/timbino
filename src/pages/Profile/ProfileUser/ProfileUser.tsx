@@ -229,13 +229,14 @@ const ProfileUser = () => {
             <TextInput
               style={styles.isiEdit}
               value={profileData.namaBayi}
+              multiline={true}
               onChangeText={text => handleChange('namaBayi', text)}
             />
           ) : (
             <Text style={styles.isiProfile2}>{profileData.namaBayi}</Text>
           )}
         </View>
-        <View style={isEditing ? styles.line2 : styles.line}></View>
+        <View style={styles.line}></View>
         <View style={styles.profileBayi}>
           <Text style={styles.isiProfile1}>Jenis Kelamin:</Text>
           {isEditing ? (
@@ -287,19 +288,18 @@ const ProfileUser = () => {
               value={profileData.usia}
               keyboardType="numeric" // Memastikan keyboard hanya menampilkan angka
               onChangeText={text => {
-                // Konversi text ke angka
-                const numericValue = parseInt(text, 10);
+                // Hanya izinkan karakter angka dengan regex
+                const filteredText = text.replace(/[^0-9]/g, '');
 
-                // Validasi agar hanya angka 0-24 yang diperbolehkan
+                // Konversi text ke angka
+                const numericValue = parseInt(filteredText, 10);
+
+                // Validasi agar hanya angka 1-24 yang diperbolehkan
                 if (
-                  !isNaN(numericValue) &&
-                  numericValue >= 0 &&
-                  numericValue <= 24
+                  filteredText === '' ||
+                  (numericValue >= 1 && numericValue <= 24)
                 ) {
-                  handleChange('usia', text);
-                } else if (text === '') {
-                  // Izinkan menghapus input
-                  handleChange('usia', '');
+                  handleChange('usia', filteredText);
                 }
               }}
             />
@@ -308,7 +308,7 @@ const ProfileUser = () => {
           )}
           <Text style={styles.bulan}>Bulan</Text>
         </View>
-        <View style={isEditing ? styles.line2 : styles.line}></View>
+        <View style={styles.line}></View>
         <View style={styles.profileBayi}>
           <Text style={styles.isiProfile1}>Tanggal Lahir:</Text>
           {isEditing ? (
@@ -331,33 +331,35 @@ const ProfileUser = () => {
             />
           )}
         </View>
-        <View style={isEditing ? styles.line2 : styles.line}></View>
+        <View style={styles.line}></View>
         <View style={styles.profileBayi}>
           <Text style={styles.isiProfile1}>Ibu Kandung:</Text>
           {isEditing ? (
             <TextInput
               style={styles.isiEdit}
               value={profileData.ibuKandung}
+              multiline={true}
               onChangeText={text => handleChange('ibuKandung', text)}
             />
           ) : (
             <Text style={styles.isiProfile2}>{profileData.ibuKandung}</Text>
           )}
         </View>
-        <View style={isEditing ? styles.line2 : styles.line}></View>
+        <View style={styles.line}></View>
         <View style={styles.profileBayi}>
           <Text style={styles.isiProfile1}>Alamat:</Text>
           {isEditing ? (
             <TextInput
               style={styles.isiEdit}
               value={profileData.alamat}
+              multiline={true}
               onChangeText={text => handleChange('alamat', text)}
             />
           ) : (
             <Text style={styles.isiProfile2}>{profileData.alamat}</Text>
           )}
         </View>
-        <View style={isEditing ? styles.line2 : styles.line}></View>
+        <View style={styles.line}></View>
       </View>
       {isEditing && (
         <TouchableOpacity style={styles.submit} onPress={handleSave}>
@@ -433,8 +435,8 @@ const styles = StyleSheet.create({
 
   //Profile Bayi
   profileContainer: {
-    width: '95%',
-    height: 350,
+    width: '90%',
+    flexShrink: 1,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
     borderRadius: 20,
@@ -446,15 +448,19 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 4,
+    flexWrap: 'wrap',
   },
   profileBayi: {
     flexDirection: 'row',
+    width: '100%',
+    flexWrap: 'nowrap',
   },
   isiProfile1: {
     color: '#2F4666',
     fontSize: 20,
     marginLeft: 3,
     fontFamily: 'Livvic-Bold',
+    flexWrap: 'wrap',
   },
   isiProfile2: {
     color: '#2F4666',
@@ -462,16 +468,19 @@ const styles = StyleSheet.create({
     fontFamily: 'Livvic-Medium',
     marginLeft: 15,
     lineHeight: 30,
+    flexShrink: 1,
+    flexWrap: 'wrap',
   },
   bulan: {
     color: '#2F4666',
     fontSize: 20,
     fontFamily: 'Livvic-Medium',
-    marginLeft: 5,
-    lineHeight: 30,
+    marginLeft: 10,
+    flex: 1,
   },
   line: {
     height: 2,
+    width: '100%',
     marginVertical: 10,
     marginHorizontal: 2,
     backgroundColor: '#2F4666',
@@ -483,11 +492,11 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontFamily: 'Livvic-Medium',
     marginLeft: 5,
-    lineHeight: 5,
-  },
-  line2: {
-    height: 2,
-    backgroundColor: '#2F4666',
+    marginTop: -10,
+    paddingRight: 10,
+    flexShrink: 1,
+    lineHeight: 28,
+    width: 'auto',
   },
   radioContainer: {
     flexDirection: 'row',
@@ -524,7 +533,7 @@ const styles = StyleSheet.create({
     color: '#2F4666',
   },
   submit: {
-    width: 357,
+    width: '90%',
     height: 50,
     backgroundColor: '#FF8261',
     borderRadius: 20,
@@ -534,7 +543,6 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 4,
     justifyContent: 'center',
-    position: 'relative',
   },
   submitText: {
     fontSize: 18,
@@ -551,8 +559,8 @@ const styles = StyleSheet.create({
 
   //User Profil
   userContainer: {
-    width: '95%',
-    height: 212,
+    width: '90%',
+    flexShrink: 1,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
     borderRadius: 20,
@@ -564,6 +572,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 4,
+    flexWrap: 'wrap',
   },
   avatar: {
     width: 52,

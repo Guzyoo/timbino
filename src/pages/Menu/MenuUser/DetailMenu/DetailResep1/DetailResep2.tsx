@@ -272,7 +272,7 @@ const Resep13 = () => {
               <View style={styles.containerMerah}></View>
               <Text style={styles.cardText}>Bening Bayam Wortel</Text>
             </View>
-            <Image source={Wortel} />
+            <Image source={Wortel} style={styles.alpukatImage} />
             {isExpandedWortel && (
               <View style={styles.containerResep}>
                 <View style={styles.containerBahan}>
@@ -311,7 +311,7 @@ const Resep13 = () => {
               <View style={styles.containerBiru}></View>
               <Text style={styles.cardText}>Nugget Bayam</Text>
             </View>
-            <Image source={Bayam} />
+            <Image source={Bayam} style={styles.alpukatImage} />
             {isExpandedBayam && (
               <View style={styles.containerResep}>
                 <View style={styles.containerBahan}>
@@ -470,12 +470,13 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     overflow: 'hidden',
     padding: 10,
+    flexWrap: 'wrap',
   },
   containerText: {
     flexDirection: 'row',
     alignItems: 'center',
     alignSelf: 'flex-start',
-    paddingLeft: 10,
+    paddingHorizontal: 10,
     marginBottom: 10,
     paddingTop: 10,
   },
@@ -485,6 +486,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Livvic-Bold',
     alignSelf: 'flex-start',
     marginLeft: 8,
+    flexWrap: 'wrap',
   },
   containerResep: {
     alignSelf: 'flex-start',
@@ -496,6 +498,7 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     paddingTop: 10,
     marginTop: 10,
+    flexWrap: 'wrap',
   },
   bahan: {
     color: '#2F4666',
@@ -504,9 +507,10 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   containerItem: {
-    paddingLeft: 30,
+    paddingLeft: 20,
     paddingTop: 10,
     marginBottom: 10,
+    paddingRight: 10,
   },
   listItem: {
     flexDirection: 'row',
@@ -524,6 +528,8 @@ const styles = StyleSheet.create({
     color: '#2F4666',
     fontFamily: 'Livvic-Medium',
     marginBottom: 2,
+    lineHeight: 24,
+    textAlign: 'left',
   },
   number: {
     fontSize: 16,

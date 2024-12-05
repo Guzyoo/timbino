@@ -163,6 +163,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     alignItems: 'center',
     paddingTop: 100,
+    marginBottom: 20,
   },
   person: {
     width: 35,
@@ -216,7 +217,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#D7E7F1',
     flexDirection: 'row',
     height: 46,
-    width: 325,
+    width: '90%',
+    marginBottom: 20,
     borderRadius: 20,
     marginTop: 20,
     shadowColor: '#000000',

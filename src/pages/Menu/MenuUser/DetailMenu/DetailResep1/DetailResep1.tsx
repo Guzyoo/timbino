@@ -11,6 +11,7 @@ import {
   LayoutAnimation,
   UIManager,
   Platform,
+  Dimensions,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
@@ -92,7 +93,7 @@ const Resep6 = () => {
     'Bawang merah dan putih yang \ndihaluskan.',
   ];
   const buatDaging = [
-    'Campurkan daging sapi giling \ndengan bumbu-bumbu yang sudah dihaluskan dalam wadah lalu kukus \nsampai matang.',
+    'Campurkan daging sapi giling \ndengan bumbu-bumbu yang sudah \ndihaluskan dalam wadah lalu kukus sampai matang.',
     'Tambahkan bayam.',
     'Masukkan garam dan minyak kelapa \nsecukupnya.',
     'Tambahkan nasi dan lembutkan \nsemua campuran bahan tersebut.',
@@ -166,7 +167,7 @@ const Resep6 = () => {
               <View style={styles.containerOren}></View>
               <Text style={styles.cardText}>Bubur Sayur</Text>
             </View>
-            <Image source={Bubur} style={styles.buburImage} />
+            <Image source={Bubur} style={styles.alpukatImage} />
             {isExpandedBubur && (
               <View style={styles.containerResep}>
                 <View style={styles.containerBahan}>
@@ -244,7 +245,7 @@ const Resep6 = () => {
               <View style={styles.containerMerah}></View>
               <Text style={styles.cardText}>Bubur Daging Sapi</Text>
             </View>
-            <Image source={Daging} />
+            <Image source={Daging} style={styles.buburImage} />
             {isExpandedDaging && (
               <View style={styles.containerResep}>
                 <View style={styles.containerBahan}>
@@ -283,7 +284,7 @@ const Resep6 = () => {
               <View style={styles.containerBiru}></View>
               <Text style={styles.cardText}>Nasi Tim Ayam</Text>
             </View>
-            <Image source={Ayam} />
+            <Image source={Ayam} style={styles.buburImage} />
             {isExpandedAyam && (
               <View style={styles.containerResep}>
                 <View style={styles.containerBahan}>
@@ -442,12 +443,13 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     overflow: 'hidden',
     padding: 10,
+    flexWrap: 'wrap',
   },
   containerText: {
     flexDirection: 'row',
     alignItems: 'center',
     alignSelf: 'flex-start',
-    paddingLeft: 10,
+    paddingHorizontal: 10,
     marginBottom: 10,
     paddingTop: 10,
   },
@@ -457,6 +459,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Livvic-Bold',
     alignSelf: 'flex-start',
     marginLeft: 8,
+    flexWrap: 'wrap',
   },
   containerResep: {
     alignSelf: 'flex-start',
@@ -468,6 +471,7 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     paddingTop: 10,
     marginTop: 10,
+    flexWrap: 'wrap',
   },
   bahan: {
     color: '#2F4666',
@@ -476,7 +480,8 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   containerItem: {
-    paddingLeft: 30,
+    paddingLeft: 20,
+    paddingRight: 10,
     paddingTop: 10,
     marginBottom: 10,
   },
@@ -496,6 +501,8 @@ const styles = StyleSheet.create({
     color: '#2F4666',
     fontFamily: 'Livvic-Medium',
     marginBottom: 2,
+    lineHeight: 24,
+    textAlign: 'left',
   },
   number: {
     fontSize: 16,

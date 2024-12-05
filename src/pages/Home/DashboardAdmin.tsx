@@ -128,10 +128,12 @@ const styles = StyleSheet.create({
   person: {
     width: 40,
     height: 40,
+    resizeMode: 'contain',
   },
   timbangan: {
-    width: 45,
-    height: 52,
+    height: 45,
+    width: 52,
+    resizeMode: 'contain',
   },
   text: {
     fontSize: 15,
@@ -161,6 +163,7 @@ const styles = StyleSheet.create({
   logoutImage: {
     width: 24,
     height: 24,
+    resizeMode: 'contain',
   },
   logoutText: {
     fontSize: 15,

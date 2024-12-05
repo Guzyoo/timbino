@@ -109,6 +109,7 @@ const styles = StyleSheet.create({
   importantDates: {
     marginTop: 20,
     flexDirection: 'row',
+    padding: 10,
     width: '100%',
     height: 76,
     borderRadius: 20,

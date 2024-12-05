@@ -31,11 +31,13 @@ const PanduanTumbuh = () => {
         </TouchableOpacity>
         <Text style={styles.panduan}>Informasi Tumbuh {'\n'}Kembang Bayi</Text>
       </View>
+
       <ScrollView
         style={styles.scrollContent}
         contentContainerStyle={styles.contentScroll}>
         <Image source={Tumbuh} style={styles.tumbuhImage} />
         <Image source={Tabel} style={styles.tabelImage} />
+        <View style={styles.garis}></View>
         <ScrollView
           style={styles.scrollContainer}
           horizontal={true}
@@ -77,6 +79,12 @@ const styles = StyleSheet.create({
     width: 249,
     height: 91,
     marginBottom: 20,
+  },
+  garis: {
+    width: '100%',
+    height: 3,
+    borderRadius: 90,
+    backgroundColor: '#2F4666',
   },
   tabelImage: {
     resizeMode: 'contain',

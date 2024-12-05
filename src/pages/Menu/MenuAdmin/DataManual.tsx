@@ -180,7 +180,7 @@ const DataManual = () => {
   };
 
   return (
-    <ScrollView>
+    <ScrollView style={styles.scroll}>
       <View style={styles.container}>
         <Image source={Timbino} style={styles.timbino} />
         <Image source={Timbangan} style={styles.timbangan} />
@@ -290,25 +290,30 @@ const DataManual = () => {
           />
         )}
 
-        <TouchableOpacity
-          style={styles.simpanContainer}
-          onPress={confirmSaveData}>
-          <Text style={styles.simpanText}>Simpan</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.backContainer}
-          onPress={() => {
-            navigation.navigate('DashboardAdminScreen');
-          }}>
-          <Image source={Back} style={styles.backIcon} />
-          <Text style={styles.backText}>Kembali</Text>
-        </TouchableOpacity>
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            style={styles.backContainer}
+            onPress={() => {
+              navigation.navigate('DashboardAdminScreen');
+            }}>
+            <Image source={Back} style={styles.backIcon} />
+            <Text style={styles.backText}>Kembali</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.simpanContainer}
+            onPress={confirmSaveData}>
+            <Text style={styles.simpanText}>Simpan</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
+  scroll: {
+    backgroundColor: '#E3F9FF',
+  },
   container: {
     flex: 1,
     alignItems: 'center',
@@ -324,6 +329,7 @@ const styles = StyleSheet.create({
   timbangan: {
     height: 45,
     width: 52,
+    resizeMode: 'contain',
     marginBottom: 13,
   },
   h1: {
@@ -406,10 +412,18 @@ const styles = StyleSheet.create({
     color: '#2F4666',
   },
 
+  buttonContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    paddingHorizontal: 20,
+  },
+
   // Simpan Container
   simpanContainer: {
-    width: '100%',
+    width: '50%',
     height: 50,
+    marginHorizontal: 20,
     borderRadius: 20,
     marginTop: 20,
     backgroundColor: '#2F4666',
@@ -425,29 +439,29 @@ const styles = StyleSheet.create({
   // Back Container
   backContainer: {
     flexDirection: 'row',
-    width: 134,
-    height: 44,
-    borderRadius: 10,
+    width: '50%',
+    height: 50,
+    marginHorizontal: 20,
+    borderRadius: 20,
+    marginTop: 20,
+    backgroundColor: '#ffff',
+    justifyContent: 'center',
+    alignItems: 'center',
     borderWidth: 1,
     borderColor: '#ccc',
-    backgroundColor: '#FFFFFF',
-    alignItems: 'center',
-    justifyContent: 'space-around',
-    marginBottom: 20,
-    marginTop: 40,
   },
   backIcon: {
     width: 18,
     height: 18,
-    marginLeft: -10,
+    marginHorizontal: 10,
   },
   backText: {
-    fontSize: 15,
-    fontFamily: 'Livvic-Bold',
     color: '#2F4666',
-    textAlignVertical: 'center',
-    marginLeft: -40,
+    marginLeft: 10,
+    marginRight: 10,
     marginBottom: 5,
+    fontSize: 18,
+    fontFamily: 'Livvic-Black',
   },
 });
 

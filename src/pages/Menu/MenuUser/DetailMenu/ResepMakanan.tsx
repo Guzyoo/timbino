@@ -27,7 +27,7 @@ const ResepMakanan = () => {
         <TouchableOpacity onPress={() => navigation.navigate('PanduanBayi')}>
           <Image source={Back} style={styles.back} />
         </TouchableOpacity>
-        <Text style={styles.panduan}>Resep Makanan Pendamping {'\n'}ASI</Text>
+        <Text style={styles.panduan}>Resep Makanan{'\n'}Pendamping ASI</Text>
       </View>
       <ScrollView
         style={styles.scrollContent}
@@ -82,7 +82,6 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     marginTop: 25,
     marginBottom: 34,
-    flexWrap: 'wrap',
   },
   back: {
     width: 29,
@@ -92,7 +91,7 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontFamily: 'Livvic-Bold',
     color: '#2F4666',
-    lineHeight: 23,
+    lineHeight: 25,
     marginBottom: 10,
     marginRight: 10,
   },
